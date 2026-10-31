@@ -73,14 +73,21 @@ const decodeHtmlEntities = (value: string) => value
   .replace(/&gt;/gi, ">");
 
 const normalizeDescription = (html: ShopifyProduct["body_html"]) => {
-  const text = decodeHtmlEntities((html ?? "")
-    .replace(/<br\s*\/?>/gi, "\n")
-    .replace(/<\/p>|<\/li>|<\/div>/gi, "\n")
-    .replace(/<[^>]*>/g, " "))
-    .replace(/\s+/g, " ")
-    .trim();
+  if (!html) {
+    return "A polished glass case with a glossy finish and protective silicon sides.";
+  }
 
-  return text ? `${text.slice(0, 520)}${text.length > 520 ? "…" : ""}` : "A polished glass case with a glossy finish and protective silicon sides.";
+  const cleaned = decodeHtmlEntities(html)
+    .replace(/<\/?(?:strong|b)[^>]*>/gi, " ")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/(?:p|li|div)>/gi, "\n")
+    .replace(/<[^>]*>/g, "")
+    .split("\n")
+    .map((line) => line.replace(/\s+/g, " ").trim())
+    .filter(Boolean)
+    .join("\n\n");
+
+  return cleaned.trim() || "A polished glass case with a glossy finish and protective silicon sides.";
 };
 
 const normalizeProduct = (product: ShopifyProduct, collection: CollectionSource) => {
