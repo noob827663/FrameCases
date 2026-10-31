@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: framecase
+    env: node
+    plan: free
+    buildCommand: pnpm install --frozen-lockfile && pnpm run build:render
+    startCommand: pnpm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
