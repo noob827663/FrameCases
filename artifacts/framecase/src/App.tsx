@@ -326,10 +326,11 @@ function App() {
     : 'All designs';
 
   const selectCollection = (slug?: string) => {
+    setActiveProduct(null);
     setSelectedCollection(slug);
     setPage(1);
     setMobileMenuOpen(false);
-    window.setTimeout(() => document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 0);
+    window.setTimeout(() => document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
   };
 
   const goToPage = (nextPage: number) => {
@@ -340,7 +341,26 @@ function App() {
   const openProduct = (product: CatalogProduct) => {
     setActiveProduct(product);
     setCartOpen(false);
+    setMobileMenuOpen(false);
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  };
+
+  const openSearch = () => {
+    setActiveProduct(null);
+    setMobileMenuOpen(false);
+    // Smooth scroll to catalog and focus the search input
+    const focusSearchInput = () => {
+      const searchEl = document.getElementById('catalog-search') as HTMLInputElement | null;
+      if (searchEl) {
+        searchEl.focus();
+        searchEl.select();
+      }
+    };
+    const catalogEl = document.getElementById('catalog');
+    if (catalogEl) {
+      catalogEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    window.setTimeout(focusSearchInput, 150);
   };
 
   const addToCart = (item: CartItem) => {
@@ -373,18 +393,35 @@ function App() {
         </a>
         <nav className="desktop-nav" aria-label="Primary navigation">
           {navCollections.slice(0, 5).map((item) => <button type="button" key={item.slug} onClick={() => selectCollection(item.slug)}>{item.label}</button>)}
-          <button type="button" onClick={() => document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth' })}>Shop all</button>
+          <button type="button" onClick={() => selectCollection()}>Shop all</button>
         </nav>
         <div className="header-actions">
-          <button type="button" className="icon-button" aria-label="Search" onClick={() => document.getElementById('catalog-search')?.focus()}><Search size={20} /></button>
+          <button type="button" className="icon-button" aria-label="Search" onClick={openSearch}><Search size={20} /></button>
           <button type="button" className="bag-button" aria-label="Shopping bag" onClick={() => setCartOpen(true)}><ShoppingBag size={20} /><span>{cartCount}</span></button>
           <button type="button" className="menu-button icon-button" aria-label="Open menu" onClick={() => setMobileMenuOpen((value) => !value)}>{mobileMenuOpen ? <X size={21} /> : <Menu size={21} />}</button>
         </div>
       </header>
       {mobileMenuOpen && (
-        <div className="mobile-menu">
-          {navCollections.map((item) => <button type="button" key={item.slug} onClick={() => selectCollection(item.slug)}>{item.label}<ChevronRight size={17} /></button>)}
-          <button type="button" onClick={() => selectCollection()}>Shop all <ChevronRight size={17} /></button>
+        <div className="mobile-menu" role="menu">
+          {navCollections.map((item) => (
+            <button
+              type="button"
+              key={item.slug}
+              role="menuitem"
+              onClick={() => selectCollection(item.slug)}
+            >
+              <span>{item.label}</span>
+              <ChevronRight size={17} />
+            </button>
+          ))}
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => selectCollection()}
+          >
+            <span>Shop all</span>
+            <ChevronRight size={17} />
+          </button>
         </div>
       )}
 
