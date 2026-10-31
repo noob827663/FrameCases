@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Framecase"
+description = "A polished phone case storefront for browsing curated designs across men’s, women’s, aesthetic, automotive, arts, astrology, sports, and newly launched collections."
+version = "1.0.0"
+id = "artifacts/framecase"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 24780
+
+[services.development]
+run = "pnpm --filter @workspace/framecase run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/framecase", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/framecase/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24780"
+BASE_PATH = "/"
