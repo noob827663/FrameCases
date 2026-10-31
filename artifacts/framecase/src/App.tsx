@@ -1,4 +1,4 @@
-import { type ChangeEvent, type ReactNode, useMemo, useState } from 'react';
+import { type ChangeEvent, type ReactNode, useEffect, useMemo, useState } from 'react';
 import { useGetCatalog } from '@workspace/api-client-react';
 import type { CatalogProduct } from '@workspace/api-client-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -138,11 +138,27 @@ function ProductPage({ product, onBack, onAddToCart, onBuyNow }: {
   onAddToCart: (item: CartItem) => void;
   onBuyNow: (item: CartItem) => void;
 }) {
-  const [brand, setBrand] = useState('');
+  const [brand, setBrand] = useState('Apple');
   const [model, setModel] = useState('');
+  const [brandSearch, setBrandSearch] = useState('');
+  const [modelSearch, setModelSearch] = useState('');
   const [added, setAdded] = useState(false);
   const models = getModelsForBrand(brand);
   const canPurchase = Boolean(brand && model);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [product.id]);
+
+  const filteredBrands = useMemo(() => {
+    const q = brandSearch.trim().toLowerCase();
+    return q ? phoneBrands.filter((b) => b.toLowerCase().includes(q)) : phoneBrands;
+  }, [brandSearch]);
+
+  const filteredModels = useMemo(() => {
+    const q = modelSearch.trim().toLowerCase();
+    return q ? models.filter((m) => m.toLowerCase().includes(q)) : models;
+  }, [models, modelSearch]);
 
   const createCartItem = () => ({
     id: `${product.id}-${brand}-${model}`,
@@ -156,15 +172,15 @@ function ProductPage({ product, onBack, onAddToCart, onBuyNow }: {
     setAdded(true);
   };
 
-  const handleBrandChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    const nextBrand = event.currentTarget.value;
-    setBrand(nextBrand);
+  const handleSelectBrand = (selectedBrand: string) => {
+    setBrand(selectedBrand);
     setModel('');
+    setModelSearch('');
     setAdded(false);
   };
 
-  const handleModelChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    setModel(event.currentTarget.value);
+  const handleSelectModel = (selectedModel: string) => {
+    setModel(selectedModel);
     setAdded(false);
   };
 
@@ -179,23 +195,83 @@ function ProductPage({ product, onBack, onAddToCart, onBuyNow }: {
           <p className="product-collection">{product.collectionName}</p>
           <h1>{product.title}</h1>
           <div className="product-page-price"><strong>{product.price}</strong>{product.compareAtPrice && <span>{product.compareAtPrice}</span>}</div>
-          <p className="product-page-description">{product.description}</p>
-          <div className="device-picker">
-            <div className="device-picker-heading"><p>Choose your phone</p><span>Required</span></div>
-            <label>Mobile brand
-              <select value={brand} onChange={handleBrandChange}>
-                <option value="">Select brand</option>
-                {phoneBrands.map((phoneBrand) => <option key={phoneBrand} value={phoneBrand}>{phoneBrand}</option>)}
-              </select>
-            </label>
-            <label>Model
-              <select value={model} disabled={!brand} onChange={handleModelChange}>
-                <option value="">{brand ? 'Select model' : 'Select a brand first'}</option>
-                {models.map((phoneModel) => <option key={phoneModel} value={phoneModel}>{phoneModel}</option>)}
-              </select>
-            </label>
+          <div className="product-page-description">
+            {product.description.split('\n\n').filter(Boolean).map((para, i) => (
+              <p key={i}>{para}</p>
+            ))}
           </div>
-          {!canPurchase && <p className="selection-hint">Select your mobile brand and model to continue.</p>}
+
+          <div className="device-picker-onpage">
+            <div className="device-picker-heading">
+              <p>Choose your phone</p>
+              <span>{brand && model ? `${brand} · ${model}` : 'Selection Required'}</span>
+            </div>
+
+            <div className="onpage-menu-section">
+              <div className="onpage-menu-header">
+                <span className="onpage-step-label">1. Select Brand</span>
+                <input
+                  type="text"
+                  placeholder="Filter brand..."
+                  value={brandSearch}
+                  onChange={(e) => setBrandSearch(e.target.value)}
+                  className="onpage-filter-input"
+                  aria-label="Filter phone brand"
+                />
+              </div>
+              <div className="onpage-brand-chips">
+                {filteredBrands.map((b) => (
+                  <button
+                    key={b}
+                    type="button"
+                    className={`onpage-chip ${brand === b ? 'active' : ''}`}
+                    onClick={() => handleSelectBrand(b)}
+                  >
+                    {b}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {brand && (
+              <div className="onpage-menu-section">
+                <div className="onpage-menu-header">
+                  <span className="onpage-step-label">2. Select Model for {brand}</span>
+                  <input
+                    type="text"
+                    placeholder={`Search ${brand} models...`}
+                    value={modelSearch}
+                    onChange={(e) => setModelSearch(e.target.value)}
+                    className="onpage-filter-input"
+                    aria-label={`Search ${brand} phone models`}
+                  />
+                </div>
+                <div className="onpage-model-grid">
+                  {filteredModels.length === 0 ? (
+                    <p className="no-models-text">No models matched "{modelSearch}".</p>
+                  ) : (
+                    filteredModels.map((m) => (
+                      <button
+                        key={m}
+                        type="button"
+                        className={`onpage-model-btn ${model === m ? 'active' : ''}`}
+                        onClick={() => handleSelectModel(m)}
+                      >
+                        {m}
+                      </button>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {!canPurchase && (
+            <p className="selection-hint">
+              {!brand ? 'Select a brand above to see available models.' : 'Select your model above to continue.'}
+            </p>
+          )}
+
           <div className="product-actions">
             <button type="button" className="secondary-button" disabled={!canPurchase} onClick={addCurrentItem}><ShoppingBag size={17} /> {added ? 'Added to bag' : 'Add to cart'}</button>
             <button type="button" className="primary-button" disabled={!canPurchase} onClick={() => onBuyNow(createCartItem())}>Buy now <ArrowUpRight size={17} /></button>
@@ -264,7 +340,7 @@ function App() {
   const openProduct = (product: CatalogProduct) => {
     setActiveProduct(product);
     setCartOpen(false);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   };
 
   const addToCart = (item: CartItem) => {
