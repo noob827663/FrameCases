@@ -352,7 +352,8 @@ function App() {
   const [orderModalMessage, setOrderModalMessage] = useState<string | null>(null);
   const [copiedOrder, setCopiedOrder] = useState(false);
   const [page, setPage] = useState(1);
-  const [currentView, setCurrentView] = useState<'catalog' | 'about' | 'faq' | 'blog'>('catalog');
+  const [currentView, setCurrentView] = useState<'catalog' | 'about' | 'faq' | 'blog' | 'category'>('catalog');
+  const [categoryViewSlug, setCategoryViewSlug] = useState<string | undefined>();
   const scrollPositionRef = useRef<number>(0);
   const params = useMemo(() => ({
     collection: selectedCollection,
@@ -423,6 +424,19 @@ function App() {
       document.title = 'Framecase — Luxury 9H Glass Phone Cases at ₹299 | iPhone, Samsung, OnePlus';
     }
   }, [currentView, activeProduct, selectedCollection, currentLabel]);
+
+  const openCategoryPage = (slug: string) => {
+    setCategoryViewSlug(slug);
+    setSelectedCollection(slug);
+    setSearch('');
+    setPage(1);
+    setCurrentView('category');
+    setActiveProduct(null);
+    setMobileMenuOpen(false);
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  };
 
   const selectCollection = (slug?: string) => {
     setCurrentView('catalog');
@@ -551,7 +565,7 @@ function App() {
           <span className="brand-word">frame<span>case</span></span>
         </a>
         <nav className="desktop-nav" aria-label="Primary navigation">
-          {navCollections.slice(0, 4).map((item) => <button type="button" key={item.slug} onClick={() => selectCollection(item.slug)}>{item.label}</button>)}
+          {navCollections.slice(0, 4).map((item) => <button type="button" key={item.slug} onClick={() => openCategoryPage(item.slug)}>{item.label}</button>)}
           <button type="button" onClick={() => navigateToView('blog')}>Blog</button>
           <button type="button" onClick={() => navigateToView('about')}>About</button>
           <button type="button" onClick={() => navigateToView('faq')}>FAQs</button>
@@ -570,7 +584,7 @@ function App() {
               type="button"
               key={item.slug}
               role="menuitem"
-              onClick={() => selectCollection(item.slug)}
+              onClick={() => openCategoryPage(item.slug)}
             >
               <span>{item.label}</span>
               <ChevronRight size={17} />
@@ -614,6 +628,81 @@ function App() {
       <main>
         {activeProduct ? (
           <ProductPage key={activeProduct.id} product={activeProduct} onBack={handleBackToCatalog} onAddToCart={addToCart} onBuyNow={buyNow} />
+        ) : currentView === 'category' ? (
+          <div className="content-page-shell category-page-shell">
+            <div className="content-page-header">
+              <button type="button" className="back-to-catalog" onClick={() => navigateToView('catalog')}>
+                <ArrowUpRight size={16} className="rotate-180" /> Back to home
+              </button>
+              <p className="eyebrow">Category Collection</p>
+              <h1 className="content-page-title">{currentLabel}</h1>
+              <p className="content-page-subtitle">
+                Explore our curated {currentLabel} phone cases with 9H tempered glass and shockproof protection.
+              </p>
+            </div>
+
+            <div className="category-toolbar">
+              <p className="result-count">
+                {catalog.isLoading ? 'Syncing live designs…' : `${products.length} designs available on page ${page}`}
+              </p>
+              <div className="catalog-search-wrapper">
+                <PredictiveSearchBox
+                  value={search}
+                  onChange={(val: string) => {
+                    setSearch(val);
+                    setPage(1);
+                  }}
+                  onSelectProduct={(p: SuggestProduct) => {
+                    handleSelectSuggestedProduct(p);
+                  }}
+                  onSelectCollection={(c: SuggestCollection) => {
+                    openCategoryPage(c.handle);
+                  }}
+                  onSubmit={(val: string) => {
+                    setSearch(val);
+                    setPage(1);
+                  }}
+                  placeholder={`Search ${currentLabel}...`}
+                />
+              </div>
+            </div>
+
+            {catalog.isLoading && (
+              <div className="catalog-state"><div className="loader" /><p>Bringing the latest designs in…</p></div>
+            )}
+            {catalog.isError && (
+              <div className="catalog-state state-error">
+                <p>We couldn’t reach the live collection right now.</p>
+                <button type="button" className="secondary-button" onClick={() => catalog.refetch()}>Try again</button>
+              </div>
+            )}
+            {!catalog.isLoading && !catalog.isError && products.length === 0 && (
+              <div className="catalog-state">
+                <Sparkles size={24} />
+                <p>No cases found in this category. Explore our other design collections.</p>
+                <button type="button" className="secondary-button" onClick={() => navigateToView('catalog')}>View all designs</button>
+              </div>
+            )}
+            {!catalog.isLoading && !catalog.isError && products.length > 0 && (
+              <div className="product-grid">
+                {products.map((product, index) => (
+                  <ProductCard key={product.id} product={product} index={index} onOpen={openProduct} />
+                ))}
+              </div>
+            )}
+
+            {!catalog.isLoading && !catalog.isError && products.length > 0 && (
+              <nav className="pagination" aria-label="Category pages">
+                <button type="button" className="pagination-arrow" disabled={page === 1} onClick={() => goToPage(page - 1)}>Previous</button>
+                <div className="pagination-pages">
+                  {pageNumbers.map((pageNumber) => (
+                    <button type="button" key={pageNumber} className={pageNumber === page ? 'current' : ''} onClick={() => goToPage(pageNumber)}>{pageNumber}</button>
+                  ))}
+                </div>
+                <button type="button" className="pagination-arrow" disabled={!catalog.data?.hasNextPage} onClick={() => goToPage(page + 1)}>Next <ChevronRight size={15} /></button>
+              </nav>
+            )}
+          </div>
         ) : currentView === 'about' ? (
           <AboutPage onBack={() => navigateToView('catalog')} />
         ) : currentView === 'faq' ? (
