@@ -1256,3 +1256,26 @@ h2 { margin-bottom: 0; font-size: clamp(38px, 5vw, 65px); line-height: .95; lett
   min-width: 180px;
   justify-content: center;
 }
+
+/* Category Dedicated Page */
+.category-page-shell {
+  max-width: 1240px;
+}
+
+.category-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--line);
+}
+
+.category-toolbar .result-count {
+  margin: 0;
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  color: var(--muted);
+}
