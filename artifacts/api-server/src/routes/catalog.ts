@@ -54,7 +54,6 @@ const collections: CollectionSource[] = [
 
 const collectionBySlug = new Map(collections.map((collection) => [collection.slug, collection]));
 const sourceCache = new Map<string, { expiresAt: number; products: ReturnType<typeof normalizeProduct>[]; hasNextPage: boolean }>();
-const searchCache = new Map<string, { expiresAt: number; products: ReturnType<typeof normalizeProduct>[]; hasNextPage: boolean }>();
 const CACHE_TTL_MS = 5 * 60 * 1000;
 
 const toProductsJsonUrl = (url: string, page: number) => `${url.replace(/\/$/, "")}/products.json?limit=100&page=${page}`;
@@ -94,10 +93,10 @@ const normalizeDescription = (html: ShopifyProduct["body_html"]) => {
 const normalizeProduct = (product: ShopifyProduct, collection: CollectionSource) => {
   const variant = product.variants?.[0];
   const sourceImage = product.images?.[0]?.src ?? null;
-  const imageUrl: string | null = sourceImage?.startsWith("//") ? `https:${sourceImage}` : sourceImage;
-  const compareAtPrice: string | null = variant?.compare_at_price
+  const imageUrl = (sourceImage?.startsWith("//") ? `https:${sourceImage}` : sourceImage) as string | null;
+  const compareAtPrice = (variant?.compare_at_price
     ? `₹${variant.compare_at_price}`
-    : (variant?.price ? `₹${variant.price}` : null);
+    : (variant?.price ? `₹${variant.price}` : null)) as string | null;
 
   return {
     id: `${product.handle}`,
@@ -105,8 +104,8 @@ const normalizeProduct = (product: ShopifyProduct, collection: CollectionSource)
     description: normalizeDescription(product.body_html),
     imageUrl,
     price: "₹299",
-    compareAtPrice: compareAtPrice as string | null,
-    productUrl: `https://phonevilla.in/products/${product.handle}`,
+    compareAtPrice,
+    productUrl: `/products/${product.handle}`,
     collectionSlug: collection.slug,
     collectionName: collection.name,
     tags: normalizeTags(product.tags),
@@ -141,78 +140,6 @@ async function fetchCollection(collection: CollectionSource, page: number) {
   return result;
 }
 
-async function fetchPhonevillaSearch(query: string, page: number) {
-  const cacheKey = `${query.toLowerCase()}:${page}`;
-  const cached = searchCache.get(cacheKey);
-  if (cached && cached.expiresAt > Date.now()) return cached;
-
-  const url = `https://phonevilla.in/search?q=${encodeURIComponent(query)}&page=${page}`;
-  const response = await fetch(url, {
-    headers: {
-      "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 26_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Brave/1 Mobile/15E148 Safari/604.1",
-      Accept: "text/html,application/xhtml+xml",
-    },
-    signal: AbortSignal.timeout(15_000),
-  });
-
-  if (!response.ok) {
-    throw new Error(`PhoneVilla search returned ${response.status} for ${query}`);
-  }
-
-  const html = await response.text();
-  const cards = html.split(/<li[^>]*class="[^"]*grid__item/g).slice(1);
-  const products: ReturnType<typeof normalizeProduct>[] = [];
-  const seenHandles = new Set<string>();
-
-  for (const card of cards) {
-    const handleMatch = card.match(/href="\/products\/([^"?]+)/);
-    if (!handleMatch) continue;
-    const handle = handleMatch[1];
-    if (seenHandles.has(handle)) continue;
-    seenHandles.add(handle);
-
-    const titleMatch = card.match(/<h3[^>]*class="[^"]*card__heading[^"]*"[\s\S]*?<a[^>]*>([\s\S]*?)<\/a>/i);
-    const title = titleMatch ? decodeHtmlEntities(titleMatch[1].replace(/<[^>]+>/g, "").trim()) : handle.replace(/-/g, " ");
-
-    const imgMatch = card.match(/<img[^>]+src="([^"]+)"/i);
-    let imageUrl = imgMatch ? imgMatch[1] : null;
-    if (imageUrl && imageUrl.startsWith("//")) imageUrl = `https:${imageUrl}`;
-
-    const priceMatch = card.match(/class="price-item price-item--regular"[^>]*>([\s\S]*?)<\/span>/i);
-    const rawPrice = priceMatch ? priceMatch[1].replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim() : "₹449";
-    const originalPrice = rawPrice.replace(/Rs\.?\s*/i, "₹").replace(/\.00$/, "");
-
-    const compareMatch = card.match(/class="price-item price-item--sale"[^>]*>([\s\S]*?)<\/span>/i);
-    const rawCompare = compareMatch ? compareMatch[1].replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim() : null;
-    const originalCompare = rawCompare ? rawCompare.replace(/Rs\.?\s*/i, "₹").replace(/\.00$/, "") : null;
-    const compareAtPrice: string | null = originalCompare || (originalPrice !== "₹299" ? originalPrice : null);
-
-    products.push({
-      id: handle,
-      title,
-      description: "A polished glass case with a glossy finish and protective silicon sides.",
-      imageUrl: imageUrl ?? null,
-      price: "₹299",
-      compareAtPrice,
-      productUrl: `https://phonevilla.in/products/${handle}`,
-      collectionSlug: "phonevilla-search",
-      collectionName: "Search results",
-      tags: [query],
-      isFeatured: false,
-    });
-  }
-
-  const nextPageNum = page + 1;
-  const hasNextPage =
-    /aria-label="Next page"|aria-label="Next"|class="pagination__item--next"/.test(html) ||
-    new RegExp(`aria-label="Page ${nextPageNum}"`).test(html) ||
-    new RegExp(`page=${nextPageNum}`).test(html);
-
-  const result = { expiresAt: Date.now() + CACHE_TTL_MS, products, hasNextPage };
-  searchCache.set(cacheKey, result);
-  return result;
-}
-
 const router: IRouter = Router();
 
 router.get("/catalog", async (req, res) => {
@@ -223,58 +150,31 @@ router.get("/catalog", async (req, res) => {
   }
 
   const { collection, search, limit = 48, page = 1 } = parsed.data;
-  const normalizedSearch = search?.trim();
+  const sources = collection && collectionBySlug.has(collection)
+    ? [collectionBySlug.get(collection)!]
+    : collections;
 
   try {
-    // If user provided a search query, query PhoneVilla search directly
-    if (normalizedSearch) {
-      const searchResult = await fetchPhonevillaSearch(normalizedSearch, page);
-      const response = GetCatalogResponse.parse({
-        products: searchResult.products.slice(0, limit),
-        collections: collections.map((item) => ({
-          slug: item.slug,
-          name: item.name,
-          count: 0,
-        })),
-        syncedAt: new Date().toISOString(),
-        sourceOnline: true,
-        page,
-        hasNextPage: searchResult.hasNextPage,
+    const results = await Promise.all(sources.map((source) => fetchCollection(source, page)));
+    const products = results.flatMap((result) => result.products);
+    const normalizedSearch = search?.trim().toLowerCase();
+    const filtered = products
+      .filter((product) => !normalizedSearch ||
+        `${product.title} ${product.collectionName} ${product.tags.join(" ")}`
+          .toLowerCase()
+          .includes(normalizedSearch))
+      .sort((a, b) => {
+        const priority = (product: ReturnType<typeof normalizeProduct>) => {
+          if (product.collectionSlug === "best-sellers") return 0;
+          if (product.collectionSlug === "new-arrivalss" || product.collectionSlug === "new-designs") return 1;
+          if (product.collectionSlug === "sports-collection") return 2;
+          return 3;
+        };
+        return priority(a) - priority(b);
       });
 
-      res.json(response);
-      return;
-    }
-
-    const sources = collection && collectionBySlug.has(collection)
-      ? [collectionBySlug.get(collection)!]
-      : collections;
-
-    const results = await Promise.all(sources.map((source) => fetchCollection(source, page)));
-    const rawProducts = results.flatMap((result) => result.products);
-
-    // Deduplicate products across collections by handle
-    const seenHandles = new Set<string>();
-    const deduplicated: ReturnType<typeof normalizeProduct>[] = [];
-    for (const p of rawProducts) {
-      if (!seenHandles.has(p.id)) {
-        seenHandles.add(p.id);
-        deduplicated.push(p);
-      }
-    }
-
-    const filtered = deduplicated.sort((a, b) => {
-      const priority = (product: ReturnType<typeof normalizeProduct>) => {
-        if (product.collectionSlug === "best-sellers") return 0;
-        if (product.collectionSlug === "new-arrivalss" || product.collectionSlug === "new-designs") return 1;
-        if (product.collectionSlug === "sports-collection") return 2;
-        return 3;
-      };
-      return priority(a) - priority(b);
-    });
-
     const collectionCounts = new Map<string, number>();
-    rawProducts.forEach((product) => {
+    products.forEach((product) => {
       collectionCounts.set(product.collectionSlug, (collectionCounts.get(product.collectionSlug) ?? 0) + 1);
     });
 

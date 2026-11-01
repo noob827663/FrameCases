@@ -6,6 +6,9 @@ import { ArrowUpRight, ChevronRight, Heart, Instagram, Menu, Search, ShieldCheck
 import { Toaster } from '@/components/ui/toaster';
 import { PredictiveSearchBox, type SuggestProduct, type SuggestCollection } from '@/components/predictive-search';
 import { ErrorBoundary } from '@/components/error-boundary';
+import { AboutPage } from '@/pages/about';
+import { FaqPage } from '@/pages/faq';
+import { BlogPage } from '@/pages/blog';
 
 const queryClient = new QueryClient();
 
@@ -313,6 +316,7 @@ function App() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [page, setPage] = useState(1);
+  const [currentView, setCurrentView] = useState<'catalog' | 'about' | 'faq' | 'blog'>('catalog');
   const scrollPositionRef = useRef<number>(0);
   const params = useMemo(() => ({
     collection: selectedCollection,
@@ -348,7 +352,15 @@ function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  const navigateToView = (view: 'catalog' | 'about' | 'faq' | 'blog') => {
+    setCurrentView(view);
+    setActiveProduct(null);
+    setMobileMenuOpen(false);
+    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+  };
+
   const selectCollection = (slug?: string) => {
+    setCurrentView('catalog');
     setActiveProduct(null);
     setSelectedCollection(slug);
     setPage(1);
@@ -405,7 +417,7 @@ function App() {
       imageUrl: p.imageUrl ?? null,
       price: '₹299',
       compareAtPrice: p.compareAtPrice ?? '₹449',
-      productUrl: p.url.startsWith('http') ? p.url : `https://phonevilla.in${p.url}`,
+      productUrl: p.url.startsWith('http') ? p.url : '#',
       collectionSlug: 'search-results',
       collectionName: 'Curated Collection',
       tags: [],
@@ -449,7 +461,10 @@ function App() {
           <span className="brand-word">frame<span>case</span></span>
         </a>
         <nav className="desktop-nav" aria-label="Primary navigation">
-          {navCollections.slice(0, 5).map((item) => <button type="button" key={item.slug} onClick={() => selectCollection(item.slug)}>{item.label}</button>)}
+          {navCollections.slice(0, 4).map((item) => <button type="button" key={item.slug} onClick={() => selectCollection(item.slug)}>{item.label}</button>)}
+          <button type="button" onClick={() => navigateToView('blog')}>Blog</button>
+          <button type="button" onClick={() => navigateToView('about')}>About</button>
+          <button type="button" onClick={() => navigateToView('faq')}>FAQs</button>
           <button type="button" onClick={() => selectCollection()}>Shop all</button>
         </nav>
         <div className="header-actions">
@@ -474,6 +489,30 @@ function App() {
           <button
             type="button"
             role="menuitem"
+            onClick={() => navigateToView('blog')}
+          >
+            <span>Blog</span>
+            <ChevronRight size={17} />
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => navigateToView('about')}
+          >
+            <span>About Us</span>
+            <ChevronRight size={17} />
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => navigateToView('faq')}
+          >
+            <span>FAQs</span>
+            <ChevronRight size={17} />
+          </button>
+          <button
+            type="button"
+            role="menuitem"
             onClick={() => selectCollection()}
           >
             <span>Shop all</span>
@@ -483,7 +522,15 @@ function App() {
       )}
 
       <main>
-        {activeProduct ? <ProductPage key={activeProduct.id} product={activeProduct} onBack={handleBackToCatalog} onAddToCart={addToCart} onBuyNow={buyNow} /> : <>
+        {activeProduct ? (
+          <ProductPage key={activeProduct.id} product={activeProduct} onBack={handleBackToCatalog} onAddToCart={addToCart} onBuyNow={buyNow} />
+        ) : currentView === 'about' ? (
+          <AboutPage onBack={() => navigateToView('catalog')} />
+        ) : currentView === 'faq' ? (
+          <FaqPage onBack={() => navigateToView('catalog')} />
+        ) : currentView === 'blog' ? (
+          <BlogPage onBack={() => navigateToView('catalog')} onExploreDesigns={() => selectCollection()} />
+        ) : <>
         <section className="hero">
           <div className="hero-backdrop hero-backdrop-one" />
           <div className="hero-backdrop hero-backdrop-two" />
@@ -658,8 +705,34 @@ function App() {
 
       <footer className="site-footer">
         <div className="footer-top">
-          <div><a href="/" className="brand footer-brand"><span className="brand-mark">F</span><span className="brand-word">frame<span>case</span></span></a><p>Cases with a point of view.</p></div>
-          <div className="footer-links"><div><p>Explore</p><button type="button" onClick={() => selectCollection()}>All designs</button><button type="button" onClick={() => selectCollection('new-designs')}>New designs</button><button type="button" onClick={() => selectCollection('best-sellers')}>Best sellers</button><button type="button" onClick={() => selectCollection('aesthetic-collection')}>Aesthetic</button><button type="button" onClick={() => selectCollection('cars-bikes-collection')}>Cars & bikes</button></div><div><p>Follow along</p><a href="https://instagram.com" target="_blank" rel="noreferrer"><Instagram size={15} /> Instagram</a></div></div>
+          <div><a href="/" className="brand footer-brand" onClick={(e) => { e.preventDefault(); navigateToView('catalog'); }}><span className="brand-mark">F</span><span className="brand-word">frame<span>case</span></span></a><p>Cases with a point of view.</p></div>
+          <div className="footer-links">
+            <div>
+              <p>Explore</p>
+              <button type="button" onClick={() => selectCollection()}>All designs</button>
+              <button type="button" onClick={() => selectCollection('new-designs')}>New designs</button>
+              <button type="button" onClick={() => selectCollection('best-sellers')}>Best sellers</button>
+              <button type="button" onClick={() => selectCollection('aesthetic-collection')}>Aesthetic</button>
+              <button type="button" onClick={() => selectCollection('cars-bikes-collection')}>Cars & bikes</button>
+            </div>
+            <div>
+              <p>Company & Help</p>
+              <button type="button" onClick={() => navigateToView('about')}>About Us</button>
+              <button type="button" onClick={() => navigateToView('faq')}>FAQ’s</button>
+              <button type="button" onClick={() => navigateToView('blog')}>Blog</button>
+              <a href="mailto:nkeepson@gmail.com" className="footer-contact-link">nkeepson@gmail.com</a>
+            </div>
+            <div>
+              <p>Follow along</p>
+              <a
+                href="https://www.instagram.com/framecase.in?srtk=YWYzZDk4a3N2bWVl&utm_source=qr"
+                target="_blank"
+                rel="noreferrer"
+              >
+                <Instagram size={15} /> Instagram
+              </a>
+            </div>
+          </div>
         </div>
         <div className="footer-bottom"><span>© 2026 Framecase</span><span>Made for every device, every version of you.</span></div>
       </footer>
