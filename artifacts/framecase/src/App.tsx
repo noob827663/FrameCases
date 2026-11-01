@@ -2,7 +2,7 @@ import { type ChangeEvent, type ReactNode, useEffect, useMemo, useRef, useState 
 import { useGetCatalog } from '@workspace/api-client-react';
 import type { CatalogProduct } from '@workspace/api-client-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ArrowUpRight, ChevronRight, Heart, Instagram, Menu, Search, ShieldCheck, ShoppingBag, Sparkles, Truck, X } from 'lucide-react';
+import { ArrowUpRight, ChevronRight, Copy, Check, Heart, Instagram, Menu, Search, ShieldCheck, ShoppingBag, Sparkles, Truck, X } from 'lucide-react';
 import { Toaster } from '@/components/ui/toaster';
 import { PredictiveSearchBox, type SuggestProduct, type SuggestCollection } from '@/components/predictive-search';
 import { ErrorBoundary } from '@/components/error-boundary';
@@ -349,6 +349,8 @@ function App() {
   const [activeProduct, setActiveProduct] = useState<CatalogProduct | null>(null);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
+  const [orderModalMessage, setOrderModalMessage] = useState<string | null>(null);
+  const [copiedOrder, setCopiedOrder] = useState(false);
   const [page, setPage] = useState(1);
   const [currentView, setCurrentView] = useState<'catalog' | 'about' | 'faq' | 'blog'>('catalog');
   const scrollPositionRef = useRef<number>(0);
@@ -488,7 +490,6 @@ function App() {
     const itemList = Array.isArray(itemOrItems) ? itemOrItems : [itemOrItems];
     if (itemList.length === 0) return;
 
-    // Construct direct message text with product links and device info
     const messageLines = [
       'Hi Framecase! 👋 I would like to order the following phone case(s):',
       '',
@@ -500,10 +501,21 @@ function App() {
       'Please let me know how to proceed with payment and shipping. Thank you!',
     ];
 
-    const encodedMessage = encodeURIComponent(messageLines.join('\n'));
-    // Redirect directly to Instagram profile / DM with message
-    const instaDmUrl = `https://www.instagram.com/framecase.in?srtk=YWYzZDk4a3N2bWVl&utm_source=qr&text=${encodedMessage}`;
-    window.open(instaDmUrl, '_blank', 'noopener,noreferrer');
+    const fullMessage = messageLines.join('\n');
+    setOrderModalMessage(fullMessage);
+    setCopiedOrder(false);
+
+    // Automatically copy formatted message to user's clipboard
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(fullMessage).then(() => {
+        setCopiedOrder(true);
+      }).catch(() => {});
+    }
+
+    // Try ig.me direct message link first, falling back to official profile URL
+    const encoded = encodeURIComponent(fullMessage);
+    const igMeUrl = `https://ig.me/m/framecase.in?text=${encoded}`;
+    window.open(igMeUrl, '_blank', 'noopener,noreferrer');
   };
 
   const cartCount = cartItems.length;
@@ -921,6 +933,73 @@ function App() {
         </div>
       )}
       {cartOpen && <CartPanel items={cartItems} onClose={() => setCartOpen(false)} onRemove={(id) => setCartItems((items) => items.filter((item) => item.id !== id))} onBuyNow={buyNow} />}
+
+      {orderModalMessage && (
+        <div className="order-modal-backdrop" onClick={() => setOrderModalMessage(null)}>
+          <div className="order-modal-box" onClick={(e) => e.stopPropagation()}>
+            <div className="order-modal-header">
+              <div>
+                <p className="eyebrow">Order Direct on Instagram</p>
+                <h3 className="order-modal-title">Complete Your Order</h3>
+              </div>
+              <button
+                type="button"
+                className="modal-close"
+                onClick={() => setOrderModalMessage(null)}
+                aria-label="Close modal"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="order-modal-body">
+              <div className="order-modal-status-badge">
+                {copiedOrder ? (
+                  <>
+                    <Check size={16} className="text-green-600" />
+                    <span>Order details automatically copied to your clipboard!</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles size={16} />
+                    <span>Your order message is ready:</span>
+                  </>
+                )}
+              </div>
+
+              <div className="order-message-preview">
+                <pre>{orderModalMessage}</pre>
+              </div>
+
+              <p className="order-modal-instructions">
+                If Instagram did not pre-fill your message, simply <strong>paste</strong> your copied order details into our Instagram DM!
+              </p>
+
+              <div className="order-modal-actions">
+                <button
+                  type="button"
+                  className="secondary-button"
+                  onClick={() => {
+                    navigator.clipboard?.writeText(orderModalMessage);
+                    setCopiedOrder(true);
+                  }}
+                >
+                  <Copy size={16} /> {copiedOrder ? 'Copied again!' : 'Copy order message'}
+                </button>
+
+                <a
+                  href={`https://ig.me/m/framecase.in?text=${encodeURIComponent(orderModalMessage)}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="primary-button"
+                >
+                  <Instagram size={17} /> Open Instagram DM <ArrowUpRight size={16} />
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
