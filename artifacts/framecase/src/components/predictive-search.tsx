@@ -186,7 +186,7 @@ export function PredictiveSearchBox({
           {loading && !data && (
             <div className="predictive-search-status">
               <Loader2 className="animate-spin inline-block mr-2" size={16} />
-              Searching PhoneVilla...
+              Searching designs...
             </div>
           )}
 

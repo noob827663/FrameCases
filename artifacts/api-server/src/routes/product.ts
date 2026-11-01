@@ -81,15 +81,16 @@ router.get("/products/:handle", async (req, res) => {
     const sourceImage = payload.images?.[0] ?? null;
     const imageUrl = sourceImage?.startsWith("//") ? `https:${sourceImage}` : sourceImage;
 
-    const price = variant?.price ? `₹${(variant.price / 100).toFixed(0)}` : "₹449";
-    const compareAtPrice = variant?.compare_at_price ? `₹${(variant.compare_at_price / 100).toFixed(0)}` : null;
+    const originalPrice = variant?.price ? `₹${(variant.price / 100).toFixed(0)}` : "₹449";
+    const originalCompare = variant?.compare_at_price ? `₹${(variant.compare_at_price / 100).toFixed(0)}` : null;
+    const compareAtPrice = originalCompare || (originalPrice !== "₹299" ? originalPrice : null);
 
     const normalized = {
       id: String(payload.id),
       title: payload.title,
       description: normalizeDescription(payload.description),
       imageUrl,
-      price,
+      price: "₹299",
       compareAtPrice,
       productUrl: `https://phonevilla.in/products/${payload.handle}`,
       collectionSlug: "phonevilla-search",

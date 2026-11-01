@@ -94,15 +94,18 @@ const normalizeDescription = (html: ShopifyProduct["body_html"]) => {
 const normalizeProduct = (product: ShopifyProduct, collection: CollectionSource) => {
   const variant = product.variants?.[0];
   const sourceImage = product.images?.[0]?.src ?? null;
-  const imageUrl = sourceImage?.startsWith("//") ? `https:${sourceImage}` : sourceImage;
+  const imageUrl: string | null = sourceImage?.startsWith("//") ? `https:${sourceImage}` : sourceImage;
+  const compareAtPrice: string | null = variant?.compare_at_price
+    ? `₹${variant.compare_at_price}`
+    : (variant?.price ? `₹${variant.price}` : null);
 
   return {
     id: `${product.handle}`,
     title: product.title,
     description: normalizeDescription(product.body_html),
     imageUrl,
-    price: variant?.price ? `₹${variant.price}` : "₹499",
-    compareAtPrice: variant?.compare_at_price ? `₹${variant.compare_at_price}` : null,
+    price: "₹299",
+    compareAtPrice: compareAtPrice as string | null,
     productUrl: `https://phonevilla.in/products/${product.handle}`,
     collectionSlug: collection.slug,
     collectionName: collection.name,
@@ -177,18 +180,19 @@ async function fetchPhonevillaSearch(query: string, page: number) {
 
     const priceMatch = card.match(/class="price-item price-item--regular"[^>]*>([\s\S]*?)<\/span>/i);
     const rawPrice = priceMatch ? priceMatch[1].replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim() : "₹449";
-    const price = rawPrice.replace(/Rs\.?\s*/i, "₹").replace(/\.00$/, "");
+    const originalPrice = rawPrice.replace(/Rs\.?\s*/i, "₹").replace(/\.00$/, "");
 
     const compareMatch = card.match(/class="price-item price-item--sale"[^>]*>([\s\S]*?)<\/span>/i);
     const rawCompare = compareMatch ? compareMatch[1].replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim() : null;
-    const compareAtPrice = rawCompare ? rawCompare.replace(/Rs\.?\s*/i, "₹").replace(/\.00$/, "") : null;
+    const originalCompare = rawCompare ? rawCompare.replace(/Rs\.?\s*/i, "₹").replace(/\.00$/, "") : null;
+    const compareAtPrice: string | null = originalCompare || (originalPrice !== "₹299" ? originalPrice : null);
 
     products.push({
       id: handle,
       title,
       description: "A polished glass case with a glossy finish and protective silicon sides.",
-      imageUrl,
-      price,
+      imageUrl: imageUrl ?? null,
+      price: "₹299",
       compareAtPrice,
       productUrl: `https://phonevilla.in/products/${handle}`,
       collectionSlug: "phonevilla-search",
