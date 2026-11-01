@@ -287,12 +287,46 @@ function ProductPage({ product, onBack, onAddToCart, onBuyNow }: {
   );
 }
 
-function CartPanel({ items, onClose, onRemove }: { items: CartItem[]; onClose: () => void; onRemove: (id: string) => void }) {
+function CartPanel({ items, onClose, onRemove, onBuyNow }: { items: CartItem[]; onClose: () => void; onRemove: (id: string) => void; onBuyNow: (items: CartItem[]) => void }) {
   return (
     <div className="cart-backdrop" role="presentation" onMouseDown={onClose}>
       <aside className="cart-panel" role="dialog" aria-modal="true" aria-labelledby="cart-title" onMouseDown={(event) => event.stopPropagation()}>
         <div className="cart-panel-header"><div><p className="eyebrow">Framecase bag</p><h2 id="cart-title">Your cases</h2></div><button type="button" className="modal-close" aria-label="Close bag" onClick={onClose}><X size={20} /></button></div>
-        {items.length === 0 ? <div className="cart-empty"><ShoppingBag size={25} /><p>Your bag is empty.</p><button type="button" className="secondary-button" onClick={onClose}>Continue browsing</button></div> : <><div className="cart-items">{items.map((item) => <div className="cart-item" key={item.id}>{item.product.imageUrl ? <img src={item.product.imageUrl} alt="" /> : <div className="cart-item-fallback"><Sparkles size={16} /></div>}<div><strong>{item.product.title}</strong><p>{item.brand} · {item.model}</p><span>{item.product.price}</span></div><button type="button" aria-label={`Remove ${item.product.title}`} onClick={() => onRemove(item.id)}><X size={15} /></button></div>)}</div><p className="cart-note">Your selected phone brand and model are saved with each case.</p></>}
+        {items.length === 0 ? (
+          <div className="cart-empty">
+            <ShoppingBag size={25} />
+            <p>Your bag is empty.</p>
+            <button type="button" className="secondary-button" onClick={onClose}>Continue browsing</button>
+          </div>
+        ) : (
+          <>
+            <div className="cart-items">
+              {items.map((item) => (
+                <div className="cart-item" key={item.id}>
+                  {item.product.imageUrl ? <img src={item.product.imageUrl} alt="" /> : <div className="cart-item-fallback"><Sparkles size={16} /></div>}
+                  <div>
+                    <strong>{item.product.title}</strong>
+                    <p>{item.brand} · {item.model}</p>
+                    <span>{item.product.price}</span>
+                  </div>
+                  <button type="button" aria-label={`Remove ${item.product.title}`} onClick={() => onRemove(item.id)}>
+                    <X size={15} />
+                  </button>
+                </div>
+              ))}
+            </div>
+            <p className="cart-note">Your selected phone brand and model are saved with each case.</p>
+            <div className="cart-checkout-box">
+              <button
+                type="button"
+                className="primary-button cart-checkout-button"
+                onClick={() => onBuyNow(items)}
+              >
+                <Instagram size={17} /> Buy now on Instagram ({items.length} {items.length === 1 ? 'case' : 'cases'})
+              </button>
+            </div>
+          </>
+        )}
       </aside>
     </div>
   );
@@ -450,11 +484,26 @@ function App() {
     setCartItems((items) => items.some((existingItem) => existingItem.id === item.id) ? items : [...items, item]);
   };
 
-  const buyNow = (item: CartItem) => {
-    addToCart(item);
-    setActiveProduct(null);
-    setCartOpen(true);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  const buyNow = (itemOrItems: CartItem | CartItem[]) => {
+    const itemList = Array.isArray(itemOrItems) ? itemOrItems : [itemOrItems];
+    if (itemList.length === 0) return;
+
+    // Construct direct message text with product links and device info
+    const messageLines = [
+      'Hi Framecase! 👋 I would like to order the following phone case(s):',
+      '',
+      ...itemList.map((item, idx) => {
+        const productLink = window.location.origin + '/#catalog';
+        return `${idx + 1}. *${item.product.title}*\n   - Device: ${item.brand} ${item.model}\n   - Price: ${item.product.price}\n   - Link: ${productLink}`;
+      }),
+      '',
+      'Please let me know how to proceed with payment and shipping. Thank you!',
+    ];
+
+    const encodedMessage = encodeURIComponent(messageLines.join('\n'));
+    // Redirect directly to Instagram profile / DM with message
+    const instaDmUrl = `https://www.instagram.com/framecase.in?srtk=YWYzZDk4a3N2bWVl&utm_source=qr&text=${encodedMessage}`;
+    window.open(instaDmUrl, '_blank', 'noopener,noreferrer');
   };
 
   const cartCount = cartItems.length;
@@ -871,7 +920,7 @@ function App() {
           </div>
         </div>
       )}
-      {cartOpen && <CartPanel items={cartItems} onClose={() => setCartOpen(false)} onRemove={(id) => setCartItems((items) => items.filter((item) => item.id !== id))} />}
+      {cartOpen && <CartPanel items={cartItems} onClose={() => setCartOpen(false)} onRemove={(id) => setCartItems((items) => items.filter((item) => item.id !== id))} onBuyNow={buyNow} />}
     </div>
   );
 }

@@ -1150,3 +1150,17 @@ h2 { margin-bottom: 0; font-size: clamp(38px, 5vw, 65px); line-height: .95; lett
   margin-top: 36px;
   border-top: 1px solid var(--line);
 }
+
+/* Cart Checkout Button */
+.cart-checkout-box {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+
+.cart-checkout-button {
+  width: 100%;
+  justify-content: center;
+  padding: 14px 20px;
+  font-size: 14px;
+}
