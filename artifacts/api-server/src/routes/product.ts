@@ -92,9 +92,9 @@ router.get("/products/:handle", async (req, res) => {
       imageUrl,
       price: "₹299",
       compareAtPrice,
-      productUrl: `https://phonevilla.in/products/${payload.handle}`,
-      collectionSlug: "phonevilla-search",
-      collectionName: "PhoneVilla Collection",
+      productUrl: `/products/${payload.handle}`,
+      collectionSlug: "search-results",
+      collectionName: "Curated Collection",
       tags: normalizeTags(payload.tags),
       isFeatured: true,
     };

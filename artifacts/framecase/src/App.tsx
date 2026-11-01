@@ -405,7 +405,7 @@ function App() {
       imageUrl: p.imageUrl ?? null,
       price: '₹299',
       compareAtPrice: p.compareAtPrice ?? '₹449',
-      productUrl: p.url.startsWith('http') ? p.url : `https://phonevilla.in${p.url}`,
+      productUrl: p.url.startsWith('http') ? p.url : '#',
       collectionSlug: 'search-results',
       collectionName: 'Curated Collection',
       tags: [],
