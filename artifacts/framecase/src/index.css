@@ -1164,3 +1164,95 @@ h2 { margin-bottom: 0; font-size: clamp(38px, 5vw, 65px); line-height: .95; lett
   padding: 14px 20px;
   font-size: 14px;
 }
+
+/* Order Summary Modal */
+.order-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(23, 33, 31, 0.65);
+  backdrop-filter: blur(6px);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.order-modal-box {
+  background: #ffffff;
+  border-radius: 20px;
+  max-width: 540px;
+  width: 100%;
+  padding: 32px;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.25);
+  animation: slideDown 0.25s ease-out;
+  border: 1px solid rgba(23, 33, 31, 0.12);
+}
+
+.order-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.order-modal-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--ink);
+  margin: 4px 0 0;
+}
+
+.order-modal-status-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: #eef8ee;
+  border: 1px solid #c3e6c3;
+  border-radius: 8px;
+  color: #1f6b28;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.order-message-preview {
+  background: var(--cream);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 16px;
+  max-height: 180px;
+  overflow-y: auto;
+  margin-bottom: 16px;
+}
+
+.order-message-preview pre {
+  margin: 0;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  color: var(--ink);
+}
+
+.order-modal-instructions {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--muted);
+  margin: 0 0 24px;
+}
+
+.order-modal-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.order-modal-actions button,
+.order-modal-actions a {
+  flex: 1;
+  min-width: 180px;
+  justify-content: center;
+}
