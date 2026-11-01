@@ -1,4 +1,4 @@
-import { type ChangeEvent, type ReactNode, useEffect, useMemo, useState } from 'react';
+import { type ChangeEvent, type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { useGetCatalog } from '@workspace/api-client-react';
 import type { CatalogProduct } from '@workspace/api-client-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -313,6 +313,7 @@ function App() {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
   const [page, setPage] = useState(1);
+  const scrollPositionRef = useRef<number>(0);
   const params = useMemo(() => ({
     collection: selectedCollection,
     search: search.trim() || undefined,
@@ -355,10 +356,19 @@ function App() {
   };
 
   const openProduct = (product: CatalogProduct) => {
+    scrollPositionRef.current = window.scrollY;
     setActiveProduct(product);
     setCartOpen(false);
     setMobileMenuOpen(false);
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  };
+
+  const handleBackToCatalog = () => {
+    setActiveProduct(null);
+    const targetY = scrollPositionRef.current;
+    window.requestAnimationFrame(() => {
+      window.scrollTo({ top: targetY, left: 0, behavior: 'instant' });
+    });
   };
 
   const handleSelectSuggestedProduct = async (p: SuggestProduct) => {
@@ -467,7 +477,7 @@ function App() {
       )}
 
       <main>
-        {activeProduct ? <ProductPage key={activeProduct.id} product={activeProduct} onBack={() => setActiveProduct(null)} onAddToCart={addToCart} onBuyNow={buyNow} /> : <>
+        {activeProduct ? <ProductPage key={activeProduct.id} product={activeProduct} onBack={handleBackToCatalog} onAddToCart={addToCart} onBuyNow={buyNow} /> : <>
         <section className="hero">
           <div className="hero-backdrop hero-backdrop-one" />
           <div className="hero-backdrop hero-backdrop-two" />
@@ -568,7 +578,7 @@ function App() {
       <footer className="site-footer">
         <div className="footer-top">
           <div><a href="/" className="brand footer-brand"><span className="brand-mark">F</span><span className="brand-word">frame<span>case</span></span></a><p>Cases with a point of view.</p></div>
-          <div className="footer-links"><div><p>Explore</p><button type="button" onClick={() => selectCollection()}>All designs</button><button type="button" onClick={() => selectCollection('new-designs')}>New designs</button><button type="button" onClick={() => selectCollection('best-sellers')}>Best sellers</button></div><div><p>Follow along</p><a href="https://instagram.com" target="_blank" rel="noreferrer"><Instagram size={15} /> Instagram</a></div></div>
+          <div className="footer-links"><div><p>Explore</p><button type="button" onClick={() => selectCollection()}>All designs</button><button type="button" onClick={() => selectCollection('new-designs')}>New designs</button><button type="button" onClick={() => selectCollection('best-sellers')}>Best sellers</button><button type="button" onClick={() => selectCollection('aesthetic-collection')}>Aesthetic</button><button type="button" onClick={() => selectCollection('cars-bikes-collection')}>Cars & bikes</button></div><div><p>Follow along</p><a href="https://instagram.com" target="_blank" rel="noreferrer"><Instagram size={15} /> Instagram</a></div></div>
         </div>
         <div className="footer-bottom"><span>© 2026 Framecase</span><span>Made for every device, every version of you.</span></div>
       </footer>
