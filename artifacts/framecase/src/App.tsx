@@ -407,7 +407,22 @@ function App() {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
-  }, [currentView]);
+
+    // Dynamic SEO Title and Meta Description for Views
+    if (activeProduct) {
+      document.title = `${activeProduct.title} — Luxury 9H Glass Phone Case (₹299) | Framecase`;
+    } else if (currentView === 'about') {
+      document.title = 'About Us — 9H Tempered Glass Phone Cases | Framecase';
+    } else if (currentView === 'faq') {
+      document.title = 'Frequently Asked Questions (FAQs) — Framecase Phone Covers';
+    } else if (currentView === 'blog') {
+      document.title = 'Framecase Journal — Unique Phone Case Designs & 9H Glass Guides';
+    } else if (selectedCollection) {
+      document.title = `${currentLabel} Phone Cases (₹299) — 9H Glass Covers | Framecase`;
+    } else {
+      document.title = 'Framecase — Luxury 9H Glass Phone Cases at ₹299 | iPhone, Samsung, OnePlus';
+    }
+  }, [currentView, activeProduct, selectedCollection, currentLabel]);
 
   const selectCollection = (slug?: string) => {
     setCurrentView('catalog');
