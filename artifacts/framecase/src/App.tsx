@@ -345,8 +345,46 @@ function CollectionChip({ label, slug, active, onSelect }: { label: string; slug
   );
 }
 
+function parseRouteFromPathname(path: string): {
+  view: 'catalog' | 'about' | 'faq' | 'blog' | 'category';
+  categorySlug?: string;
+} {
+  const cleanPath = path.replace(/^\/+|\/+$/g, '');
+  if (!cleanPath) {
+    return { view: 'catalog' };
+  }
+  if (cleanPath === 'about') {
+    return { view: 'about' };
+  }
+  if (cleanPath === 'faq' || cleanPath === 'faqs') {
+    return { view: 'faq' };
+  }
+  if (cleanPath === 'blog') {
+    return { view: 'blog' };
+  }
+  if (cleanPath.startsWith('category/')) {
+    const slug = cleanPath.slice('category/'.length);
+    return { view: 'category', categorySlug: slug };
+  }
+  // Check if matches known category slugs or any category slug
+  const isNavCategory = navCollections.some((c) => c.slug === cleanPath);
+  if (isNavCategory || cleanPath in getCategoryMeta(cleanPath)) {
+    return { view: 'category', categorySlug: cleanPath };
+  }
+  return { view: 'category', categorySlug: cleanPath };
+}
+
 function App() {
-  const [selectedCollection, setSelectedCollection] = useState<string | undefined>();
+  const initialRoute = useMemo(() => {
+    if (typeof window !== 'undefined') {
+      return parseRouteFromPathname(window.location.pathname);
+    }
+    return { view: 'catalog' as const };
+  }, []);
+
+  const [selectedCollection, setSelectedCollection] = useState<string | undefined>(
+    initialRoute.view === 'category' ? initialRoute.categorySlug : undefined
+  );
   const [search, setSearch] = useState('');
   const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -357,8 +395,10 @@ function App() {
   const [orderModalMessage, setOrderModalMessage] = useState<string | null>(null);
   const [copiedOrder, setCopiedOrder] = useState(false);
   const [page, setPage] = useState(1);
-  const [currentView, setCurrentView] = useState<'catalog' | 'about' | 'faq' | 'blog' | 'category'>('catalog');
-  const [categoryViewSlug, setCategoryViewSlug] = useState<string | undefined>();
+  const [currentView, setCurrentView] = useState<'catalog' | 'about' | 'faq' | 'blog' | 'category'>(initialRoute.view);
+  const [categoryViewSlug, setCategoryViewSlug] = useState<string | undefined>(
+    initialRoute.view === 'category' ? initialRoute.categorySlug : undefined
+  );
   const scrollPositionRef = useRef<number>(0);
   const params = useMemo(() => ({
     collection: selectedCollection,
@@ -400,10 +440,35 @@ function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  const navigateToView = (view: 'catalog' | 'about' | 'faq' | 'blog') => {
+  useEffect(() => {
+    const handlePopState = () => {
+      const route = parseRouteFromPathname(window.location.pathname);
+      setCurrentView(route.view);
+      if (route.view === 'category' && route.categorySlug) {
+        setCategoryViewSlug(route.categorySlug);
+        setSelectedCollection(route.categorySlug);
+      } else if (route.view === 'catalog') {
+        setSelectedCollection(undefined);
+      }
+      setActiveProduct(null);
+      setMobileMenuOpen(false);
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  const navigateToView = (view: 'catalog' | 'about' | 'faq' | 'blog', updateHistory = true) => {
     setCurrentView(view);
     setActiveProduct(null);
     setMobileMenuOpen(false);
+    if (updateHistory) {
+      const targetPath = view === 'catalog' ? '/' : `/${view}`;
+      if (window.location.pathname !== targetPath) {
+        window.history.pushState({ view }, '', targetPath);
+      }
+    }
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
@@ -415,26 +480,38 @@ function App() {
     document.body.scrollTop = 0;
 
     // Dynamic SEO Title and Meta Description for Views
+    let canonicalPath = '/';
     if (activeProduct) {
       document.title = `${activeProduct.title} — Luxury 9H Glass Phone Case (₹299) | Framecase`;
     } else if (currentView === 'category') {
       const meta = getCategoryMeta(categoryViewSlug, currentLabel);
       document.title = meta.seoTitle;
+      canonicalPath = `/${categoryViewSlug || ''}`;
     } else if (currentView === 'about') {
       document.title = 'About Us — 9H Tempered Glass Phone Cases | Framecase';
+      canonicalPath = '/about';
     } else if (currentView === 'faq') {
       document.title = 'Frequently Asked Questions (FAQs) — Framecase Phone Covers';
+      canonicalPath = '/faq';
     } else if (currentView === 'blog') {
       document.title = 'Framecase Journal — Unique Phone Case Designs & 9H Glass Guides';
+      canonicalPath = '/blog';
     } else if (selectedCollection) {
       const meta = getCategoryMeta(selectedCollection, currentLabel);
       document.title = meta.seoTitle;
+      canonicalPath = `/${selectedCollection}`;
     } else {
       document.title = 'Framecase — Luxury 9H Glass Phone Cases at ₹299 | iPhone, Samsung, OnePlus';
+      canonicalPath = '/';
+    }
+
+    const canonicalEl = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+    if (canonicalEl) {
+      canonicalEl.href = `https://framecase.in${canonicalPath === '/' ? '' : canonicalPath}`;
     }
   }, [currentView, activeProduct, selectedCollection, currentLabel, categoryViewSlug]);
 
-  const openCategoryPage = (slug: string) => {
+  const openCategoryPage = (slug: string, updateHistory = true) => {
     setCategoryViewSlug(slug);
     setSelectedCollection(slug);
     setSearch('');
@@ -442,17 +519,30 @@ function App() {
     setCurrentView('category');
     setActiveProduct(null);
     setMobileMenuOpen(false);
+    if (updateHistory) {
+      const targetPath = `/${slug}`;
+      if (window.location.pathname !== targetPath) {
+        window.history.pushState({ view: 'category', slug }, '', targetPath);
+      }
+    }
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
   };
 
   const selectCollection = (slug?: string) => {
+    if (slug) {
+      openCategoryPage(slug);
+      return;
+    }
     setCurrentView('catalog');
     setActiveProduct(null);
-    setSelectedCollection(slug);
+    setSelectedCollection(undefined);
     setPage(1);
     setMobileMenuOpen(false);
+    if (window.location.pathname !== '/') {
+      window.history.pushState({ view: 'catalog' }, '', '/');
+    }
     window.setTimeout(() => document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
   };
 
@@ -569,16 +659,67 @@ function App() {
     <div className="site-shell">
       <div className="announcement"><span>Complimentary shipping on orders over ₹999</span><span className="announcement-detail">Designed to be noticed. Built to protect.</span></div>
       <header className="site-header">
-        <a href="/" className="brand" aria-label="Framecase home">
+        <a
+          href="/"
+          className="brand"
+          aria-label="Framecase home"
+          onClick={(e) => {
+            e.preventDefault();
+            selectCollection();
+          }}
+        >
           <span className="brand-mark">F</span>
           <span className="brand-word">frame<span>case</span></span>
         </a>
         <nav className="desktop-nav" aria-label="Primary navigation">
-          {navCollections.slice(0, 4).map((item) => <button type="button" key={item.slug} onClick={() => openCategoryPage(item.slug)}>{item.label}</button>)}
-          <button type="button" onClick={() => navigateToView('blog')}>Blog</button>
-          <button type="button" onClick={() => navigateToView('about')}>About</button>
-          <button type="button" onClick={() => navigateToView('faq')}>FAQs</button>
-          <button type="button" onClick={() => selectCollection()}>Shop all</button>
+          {navCollections.slice(0, 4).map((item) => (
+            <a
+              key={item.slug}
+              href={`/${item.slug}`}
+              onClick={(e) => {
+                e.preventDefault();
+                openCategoryPage(item.slug);
+              }}
+            >
+              {item.label}
+            </a>
+          ))}
+          <a
+            href="/blog"
+            onClick={(e) => {
+              e.preventDefault();
+              navigateToView('blog');
+            }}
+          >
+            Blog
+          </a>
+          <a
+            href="/about"
+            onClick={(e) => {
+              e.preventDefault();
+              navigateToView('about');
+            }}
+          >
+            About
+          </a>
+          <a
+            href="/faq"
+            onClick={(e) => {
+              e.preventDefault();
+              navigateToView('faq');
+            }}
+          >
+            FAQs
+          </a>
+          <a
+            href="/"
+            onClick={(e) => {
+              e.preventDefault();
+              selectCollection();
+            }}
+          >
+            Shop all
+          </a>
         </nav>
         <div className="header-actions">
           <button type="button" className="icon-button" aria-label="Search" onClick={openSearch}><Search size={20} /></button>
@@ -589,48 +730,63 @@ function App() {
       {mobileMenuOpen && (
         <div className="mobile-menu" role="menu">
           {navCollections.map((item) => (
-            <button
-              type="button"
+            <a
               key={item.slug}
+              href={`/${item.slug}`}
               role="menuitem"
-              onClick={() => openCategoryPage(item.slug)}
+              onClick={(e) => {
+                e.preventDefault();
+                openCategoryPage(item.slug);
+              }}
             >
               <span>{item.label}</span>
               <ChevronRight size={17} />
-            </button>
+            </a>
           ))}
-          <button
-            type="button"
+          <a
+            href="/blog"
             role="menuitem"
-            onClick={() => navigateToView('blog')}
+            onClick={(e) => {
+              e.preventDefault();
+              navigateToView('blog');
+            }}
           >
             <span>Blog</span>
             <ChevronRight size={17} />
-          </button>
-          <button
-            type="button"
+          </a>
+          <a
+            href="/about"
             role="menuitem"
-            onClick={() => navigateToView('about')}
+            onClick={(e) => {
+              e.preventDefault();
+              navigateToView('about');
+            }}
           >
             <span>About Us</span>
             <ChevronRight size={17} />
-          </button>
-          <button
-            type="button"
+          </a>
+          <a
+            href="/faq"
             role="menuitem"
-            onClick={() => navigateToView('faq')}
+            onClick={(e) => {
+              e.preventDefault();
+              navigateToView('faq');
+            }}
           >
             <span>FAQs</span>
             <ChevronRight size={17} />
-          </button>
-          <button
-            type="button"
+          </a>
+          <a
+            href="/"
             role="menuitem"
-            onClick={() => selectCollection()}
+            onClick={(e) => {
+              e.preventDefault();
+              selectCollection();
+            }}
           >
             <span>Shop all</span>
             <ChevronRight size={17} />
-          </button>
+          </a>
         </div>
       )}
 
@@ -996,21 +1152,21 @@ function App() {
 
       <footer className="site-footer">
         <div className="footer-top">
-          <div><a href="/" className="brand footer-brand" onClick={(e) => { e.preventDefault(); navigateToView('catalog'); }}><span className="brand-mark">F</span><span className="brand-word">frame<span>case</span></span></a><p>Cases with a point of view.</p></div>
+          <div><a href="/" className="brand footer-brand" onClick={(e) => { e.preventDefault(); selectCollection(); }}><span className="brand-mark">F</span><span className="brand-word">frame<span>case</span></span></a><p>Cases with a point of view.</p></div>
           <div className="footer-links">
             <div>
               <p>Explore</p>
-              <button type="button" onClick={() => selectCollection()}>All designs</button>
-              <button type="button" onClick={() => selectCollection('new-designs')}>New designs</button>
-              <button type="button" onClick={() => selectCollection('best-sellers')}>Best sellers</button>
-              <button type="button" onClick={() => selectCollection('aesthetic-collection')}>Aesthetic</button>
-              <button type="button" onClick={() => selectCollection('cars-bikes-collection')}>Cars & bikes</button>
+              <a href="/" onClick={(e) => { e.preventDefault(); selectCollection(); }}>All designs</a>
+              <a href="/new-designs" onClick={(e) => { e.preventDefault(); openCategoryPage('new-designs'); }}>New designs</a>
+              <a href="/best-sellers" onClick={(e) => { e.preventDefault(); openCategoryPage('best-sellers'); }}>Best sellers</a>
+              <a href="/aesthetic-collection" onClick={(e) => { e.preventDefault(); openCategoryPage('aesthetic-collection'); }}>Aesthetic</a>
+              <a href="/cars-bikes-collection" onClick={(e) => { e.preventDefault(); openCategoryPage('cars-bikes-collection'); }}>Cars & bikes</a>
             </div>
             <div>
               <p>Company & Help</p>
-              <button type="button" onClick={() => navigateToView('about')}>About Us</button>
-              <button type="button" onClick={() => navigateToView('faq')}>FAQ’s</button>
-              <button type="button" onClick={() => navigateToView('blog')}>Blog</button>
+              <a href="/about" onClick={(e) => { e.preventDefault(); navigateToView('about'); }}>About Us</a>
+              <a href="/faq" onClick={(e) => { e.preventDefault(); navigateToView('faq'); }}>FAQ’s</a>
+              <a href="/blog" onClick={(e) => { e.preventDefault(); navigateToView('blog'); }}>Blog</a>
               <a href="mailto:nkeepson@gmail.com" className="footer-contact-link">nkeepson@gmail.com</a>
             </div>
             <div>
