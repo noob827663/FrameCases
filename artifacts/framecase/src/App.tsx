@@ -4,6 +4,7 @@ import type { CatalogProduct } from '@workspace/api-client-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ArrowUpRight, ChevronRight, Heart, Instagram, Menu, Search, ShieldCheck, ShoppingBag, Sparkles, Truck, X } from 'lucide-react';
 import { Toaster } from '@/components/ui/toaster';
+import { PredictiveSearchBox, type SuggestProduct, type SuggestCollection } from '@/components/predictive-search';
 import { ErrorBoundary } from '@/components/error-boundary';
 
 const queryClient = new QueryClient();
@@ -305,6 +306,7 @@ function CollectionChip({ label, slug, active, onSelect }: { label: string; slug
 function App() {
   const [selectedCollection, setSelectedCollection] = useState<string | undefined>();
   const [search, setSearch] = useState('');
+  const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showAllCollections, setShowAllCollections] = useState(false);
   const [activeProduct, setActiveProduct] = useState<CatalogProduct | null>(null);
@@ -324,6 +326,20 @@ function App() {
   const currentLabel = selectedCollection
     ? collections.find((collection) => collection.slug === selectedCollection)?.name ?? 'Collection'
     : 'All designs';
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setSearchModalOpen(true);
+      }
+      if (e.key === 'Escape') {
+        setSearchModalOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const selectCollection = (slug?: string) => {
     setActiveProduct(null);
@@ -348,19 +364,7 @@ function App() {
   const openSearch = () => {
     setActiveProduct(null);
     setMobileMenuOpen(false);
-    // Smooth scroll to catalog and focus the search input
-    const focusSearchInput = () => {
-      const searchEl = document.getElementById('catalog-search') as HTMLInputElement | null;
-      if (searchEl) {
-        searchEl.focus();
-        searchEl.select();
-      }
-    };
-    const catalogEl = document.getElementById('catalog');
-    if (catalogEl) {
-      catalogEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-    window.setTimeout(focusSearchInput, 150);
+    setSearchModalOpen(true);
   };
 
   const addToCart = (item: CartItem) => {
@@ -465,7 +469,33 @@ function App() {
         <section className="catalog-section" id="catalog">
           <div className="catalog-toolbar">
             <div><p className="eyebrow">The edit</p><h2>{currentLabel}</h2><p className="result-count">{catalog.isLoading ? 'Syncing live designs…' : `${products.length} designs on page ${page}`}</p></div>
-            <label className="search-field"><Search size={18} /><input id="catalog-search" type="search" placeholder="Search designs" value={search} onChange={(event) => { setSearch(event.target.value); setPage(1); }} /><kbd>⌘ K</kbd></label>
+            <div className="catalog-search-wrapper">
+              <PredictiveSearchBox
+                value={search}
+                onChange={(val: string) => {
+                  setSearch(val);
+                  setPage(1);
+                }}
+                onSelectProduct={(p: SuggestProduct) => {
+                  const match = products.find((item) => item.id === p.handle || item.title.toLowerCase() === p.title.toLowerCase());
+                  if (match) {
+                    openProduct(match);
+                  } else {
+                    setSearch(p.title);
+                    setPage(1);
+                  }
+                }}
+                onSelectCollection={(c: SuggestCollection) => {
+                  selectCollection(c.handle);
+                  setSearch('');
+                }}
+                onSubmit={(val: string) => {
+                  setSearch(val);
+                  setPage(1);
+                }}
+                placeholder="Search designs, collections, cases..."
+              />
+            </div>
           </div>
           {catalog.isLoading && <div className="catalog-state"><div className="loader" /><p>Bringing the latest designs in…</p></div>}
           {catalog.isError && <div className="catalog-state state-error"><p>We couldn’t reach the live collection right now.</p><button type="button" className="secondary-button" onClick={() => catalog.refetch()}>Try again</button></div>}
@@ -511,6 +541,60 @@ function App() {
         </div>
         <div className="footer-bottom"><span>© 2026 Framecase</span><span>Made for every device, every version of you.</span></div>
       </footer>
+            {searchModalOpen && (
+        <div
+          className="search-modal-backdrop"
+          onClick={() => setSearchModalOpen(false)}
+        >
+          <div
+            className="search-modal-box"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="search-modal-header">
+              <PredictiveSearchBox
+                autoFocus
+                value={search}
+                onChange={(val: string) => {
+                  setSearch(val);
+                  setPage(1);
+                }}
+                onSelectProduct={(p: SuggestProduct) => {
+                  setSearchModalOpen(false);
+                  const match = products.find((item) => item.id === p.handle || item.title.toLowerCase() === p.title.toLowerCase());
+                  if (match) {
+                    openProduct(match);
+                  } else {
+                    setSearch(p.title);
+                    setPage(1);
+                    document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
+                onSelectCollection={(c: SuggestCollection) => {
+                  selectCollection(c.handle);
+                  setSearch('');
+                  setSearchModalOpen(false);
+                }}
+                onSubmit={(val: string) => {
+                  setSearch(val);
+                  setPage(1);
+                  setSearchModalOpen(false);
+                  document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth' });
+                }}
+                onClose={() => setSearchModalOpen(false)}
+                placeholder="Search PhoneVilla & Framecase..."
+              />
+              <button
+                type="button"
+                className="search-modal-close"
+                onClick={() => setSearchModalOpen(false)}
+                aria-label="Close search"
+              >
+                <X size={20} />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {cartOpen && <CartPanel items={cartItems} onClose={() => setCartOpen(false)} onRemove={(id) => setCartItems((items) => items.filter((item) => item.id !== id))} />}
     </div>
   );
