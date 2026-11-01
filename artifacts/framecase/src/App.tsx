@@ -361,6 +361,43 @@ function App() {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   };
 
+  const handleSelectSuggestedProduct = async (p: SuggestProduct) => {
+    // 1. If it's already in the catalog list, open directly
+    const existing = products.find((item) => item.id === p.handle || item.title.toLowerCase() === p.title.toLowerCase());
+    if (existing) {
+      openProduct(existing);
+      return;
+    }
+
+    // 2. Fetch full product details from backend
+    try {
+      const res = await fetch(`/api/products/${encodeURIComponent(p.handle)}`);
+      if (res.ok) {
+        const fullProduct = (await res.json()) as CatalogProduct;
+        openProduct(fullProduct);
+        return;
+      }
+    } catch {
+      // ignore network errors and fallback
+    }
+
+    // 3. Fallback: synthesize a CatalogProduct from the suggestion info
+    const fallbackProduct: CatalogProduct = {
+      id: p.handle,
+      title: p.title,
+      description: 'A polished glass case with a glossy finish and protective silicon sides.',
+      imageUrl: p.imageUrl ?? null,
+      price: p.price ?? '₹449',
+      compareAtPrice: p.compareAtPrice ?? null,
+      productUrl: p.url.startsWith('http') ? p.url : `https://phonevilla.in${p.url}`,
+      collectionSlug: 'search-results',
+      collectionName: 'PhoneVilla Collection',
+      tags: [],
+      isFeatured: true,
+    };
+    openProduct(fallbackProduct);
+  };
+
   const openSearch = () => {
     setActiveProduct(null);
     setMobileMenuOpen(false);
@@ -477,13 +514,7 @@ function App() {
                   setPage(1);
                 }}
                 onSelectProduct={(p: SuggestProduct) => {
-                  const match = products.find((item) => item.id === p.handle || item.title.toLowerCase() === p.title.toLowerCase());
-                  if (match) {
-                    openProduct(match);
-                  } else {
-                    setSearch(p.title);
-                    setPage(1);
-                  }
+                  handleSelectSuggestedProduct(p);
                 }}
                 onSelectCollection={(c: SuggestCollection) => {
                   selectCollection(c.handle);
@@ -560,14 +591,7 @@ function App() {
                 }}
                 onSelectProduct={(p: SuggestProduct) => {
                   setSearchModalOpen(false);
-                  const match = products.find((item) => item.id === p.handle || item.title.toLowerCase() === p.title.toLowerCase());
-                  if (match) {
-                    openProduct(match);
-                  } else {
-                    setSearch(p.title);
-                    setPage(1);
-                    document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth' });
-                  }
+                  handleSelectSuggestedProduct(p);
                 }}
                 onSelectCollection={(c: SuggestCollection) => {
                   selectCollection(c.handle);
