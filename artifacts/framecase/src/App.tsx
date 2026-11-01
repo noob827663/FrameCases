@@ -9,6 +9,7 @@ import { ErrorBoundary } from '@/components/error-boundary';
 import { AboutPage } from '@/pages/about';
 import { FaqPage } from '@/pages/faq';
 import { BlogPage } from '@/pages/blog';
+import { getCategoryMeta } from '@/data/categories';
 
 const queryClient = new QueryClient();
 
@@ -20,6 +21,10 @@ const navCollections = [
   { label: 'Arts & scenery', slug: 'art-collection' },
   { label: 'Astrology', slug: 'zodiac-sign' },
   { label: 'Sports', slug: 'sports-collection' },
+  { label: "Men's collection", slug: 'mens-collection' },
+  { label: "Women's collection", slug: 'girls-collection' },
+  { label: 'Cats collection', slug: 'cats-collection' },
+  { label: 'Evil eye collection', slug: 'evil-eye-nazar' },
 ];
 
 function ProductCard({ product, index, onOpen }: { product: CatalogProduct; index: number; onOpen: (product: CatalogProduct) => void }) {
@@ -412,6 +417,9 @@ function App() {
     // Dynamic SEO Title and Meta Description for Views
     if (activeProduct) {
       document.title = `${activeProduct.title} — Luxury 9H Glass Phone Case (₹299) | Framecase`;
+    } else if (currentView === 'category') {
+      const meta = getCategoryMeta(categoryViewSlug, currentLabel);
+      document.title = meta.seoTitle;
     } else if (currentView === 'about') {
       document.title = 'About Us — 9H Tempered Glass Phone Cases | Framecase';
     } else if (currentView === 'faq') {
@@ -419,11 +427,12 @@ function App() {
     } else if (currentView === 'blog') {
       document.title = 'Framecase Journal — Unique Phone Case Designs & 9H Glass Guides';
     } else if (selectedCollection) {
-      document.title = `${currentLabel} Phone Cases (₹299) — 9H Glass Covers | Framecase`;
+      const meta = getCategoryMeta(selectedCollection, currentLabel);
+      document.title = meta.seoTitle;
     } else {
       document.title = 'Framecase — Luxury 9H Glass Phone Cases at ₹299 | iPhone, Samsung, OnePlus';
     }
-  }, [currentView, activeProduct, selectedCollection, currentLabel]);
+  }, [currentView, activeProduct, selectedCollection, currentLabel, categoryViewSlug]);
 
   const openCategoryPage = (slug: string) => {
     setCategoryViewSlug(slug);
@@ -628,16 +637,18 @@ function App() {
       <main>
         {activeProduct ? (
           <ProductPage key={activeProduct.id} product={activeProduct} onBack={handleBackToCatalog} onAddToCart={addToCart} onBuyNow={buyNow} />
-        ) : currentView === 'category' ? (
+        ) : currentView === 'category' ? (() => {
+          const catMeta = getCategoryMeta(categoryViewSlug, currentLabel);
+          return (
           <div className="content-page-shell category-page-shell">
             <div className="content-page-header">
               <button type="button" className="back-to-catalog" onClick={() => navigateToView('catalog')}>
                 <ArrowUpRight size={16} className="rotate-180" /> Back to home
               </button>
-              <p className="eyebrow">Category Collection</p>
-              <h1 className="content-page-title">{currentLabel}</h1>
+              <p className="eyebrow">Curated Collection · 9H Glass Edition</p>
+              <h1 className="content-page-title">{catMeta.name}</h1>
               <p className="content-page-subtitle">
-                Explore our curated {currentLabel} phone cases with 9H tempered glass and shockproof protection.
+                {catMeta.tagline}
               </p>
             </div>
 
@@ -702,8 +713,35 @@ function App() {
                 <button type="button" className="pagination-arrow" disabled={!catalog.data?.hasNextPage} onClick={() => goToPage(page + 1)}>Next <ChevronRight size={15} /></button>
               </nav>
             )}
+
+            {/* Description and category information below pagination */}
+            <div className="category-editorial-section">
+              <div className="category-editorial-card">
+                <div className="category-editorial-body">
+                  <p className="eyebrow">About {catMeta.name}</p>
+                  <h2>{catMeta.name}: Curated Art & In-Hand Protection</h2>
+                  <p className="category-editorial-description">{catMeta.description}</p>
+                  <p className="category-editorial-materials">{catMeta.materialInfo}</p>
+                </div>
+                <div className="category-highlights-box">
+                  <h3>Highlights & Engineering</h3>
+                  <ul>
+                    {catMeta.highlights.map((h, i) => (
+                      <li key={i}>
+                        <ShieldCheck size={16} /> <span>{h}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <div className="category-price-banner">
+                    <strong>₹299</strong>
+                    <span>All designs in this category · Free shipping over ₹999</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-        ) : currentView === 'about' ? (
+          );
+        })() : currentView === 'about' ? (
           <AboutPage onBack={() => navigateToView('catalog')} />
         ) : currentView === 'faq' ? (
           <FaqPage onBack={() => navigateToView('catalog')} />

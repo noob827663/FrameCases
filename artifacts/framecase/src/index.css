@@ -1279,3 +1279,112 @@ h2 { margin-bottom: 0; font-size: clamp(38px, 5vw, 65px); line-height: .95; lett
   font-size: 13px;
   color: var(--muted);
 }
+
+/* Category Editorial Section (Below pagination) */
+.category-editorial-section {
+  margin-top: 56px;
+  padding-top: 36px;
+  border-top: 1px solid var(--line);
+}
+
+.category-editorial-card {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 36px 40px;
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 40px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+}
+
+.category-editorial-body h2 {
+  font-size: 26px;
+  font-weight: 800;
+  margin: 6px 0 16px;
+  color: var(--ink);
+  line-height: 1.25;
+}
+
+.category-editorial-description {
+  font-size: 15px;
+  line-height: 1.7;
+  color: #37413f;
+  margin-bottom: 14px;
+}
+
+.category-editorial-materials {
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--muted);
+  margin: 0;
+}
+
+.category-highlights-box {
+  background: var(--cream);
+  border: 1px solid rgba(23, 33, 31, 0.08);
+  border-radius: 14px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.category-highlights-box h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 16px;
+  color: var(--ink);
+}
+
+.category-highlights-box ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.category-highlights-box li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #2b3835;
+}
+
+.category-highlights-box li svg {
+  color: #17211f;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.category-price-banner {
+  padding-top: 16px;
+  border-top: 1px solid rgba(23, 33, 31, 0.1);
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.category-price-banner strong {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.category-price-banner span {
+  font-size: 11px;
+  color: var(--muted);
+  font-family: 'DM Mono', monospace;
+}
+
+@media (max-width: 820px) {
+  .category-editorial-card {
+    grid-template-columns: 1fr;
+    padding: 24px;
+    gap: 24px;
+  }
+}
