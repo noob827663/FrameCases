@@ -321,6 +321,12 @@ function App() {
     page,
   }), [selectedCollection, search, page]);
   const catalog = useGetCatalog(params);
+  const newlyLaunchedCatalog = useGetCatalog({
+    collection: 'new-arrivalss',
+    limit: 20,
+    page: 1,
+  });
+  const newlyLaunchedProducts = (newlyLaunchedCatalog.data?.products ?? []).slice(0, 20);
   const products = catalog.data?.products ?? [];
   const collections = catalog.data?.collections ?? [];
   const visibleCollections = showAllCollections ? collections : collections.slice(0, 12);
@@ -397,11 +403,11 @@ function App() {
       title: p.title,
       description: 'A polished glass case with a glossy finish and protective silicon sides.',
       imageUrl: p.imageUrl ?? null,
-      price: p.price ?? '₹449',
-      compareAtPrice: p.compareAtPrice ?? null,
+      price: '₹299',
+      compareAtPrice: p.compareAtPrice ?? '₹449',
       productUrl: p.url.startsWith('http') ? p.url : `https://phonevilla.in${p.url}`,
       collectionSlug: 'search-results',
-      collectionName: 'PhoneVilla Collection',
+      collectionName: 'Curated Collection',
       tags: [],
       isFeatured: true,
     };
@@ -549,6 +555,81 @@ function App() {
             </div>
             <button type="button" className="pagination-arrow" disabled={!catalog.data?.hasNextPage} onClick={() => goToPage(page + 1)}>Next <ChevronRight size={15} /></button>
           </nav>}
+
+          {/* Newly launched horizontal section below pagination */}
+          <div className="newly-launched-section">
+            <div className="newly-launched-header">
+              <div>
+                <p className="eyebrow">Fresh drops</p>
+                <h3 className="newly-launched-title">Newly launched</h3>
+              </div>
+              <button
+                type="button"
+                className="text-button"
+                onClick={() => selectCollection('new-arrivalss')}
+              >
+                View all newly launched <ArrowUpRight size={15} />
+              </button>
+            </div>
+
+            <div className="newly-launched-scroll-container">
+              {newlyLaunchedProducts.map((p, idx) => (
+                <div
+                  key={p.id || idx}
+                  className="newly-launched-card"
+                  onClick={() => openProduct(p)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      openProduct(p);
+                    }
+                  }}
+                >
+                  <div className="newly-launched-card-image">
+                    {p.imageUrl ? (
+                      <img src={p.imageUrl} alt={p.title} loading="lazy" />
+                    ) : (
+                      <div className="image-fallback">
+                        <Sparkles size={20} />
+                      </div>
+                    )}
+                    <span className="newly-launched-badge">NEW</span>
+                  </div>
+                  <div className="newly-launched-card-info">
+                    <h4 className="newly-launched-card-title">{p.title}</h4>
+                    <div className="newly-launched-card-price">
+                      <strong>₹299</strong>
+                      {p.compareAtPrice && <span>{p.compareAtPrice}</span>}
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              <div
+                className="newly-launched-card newly-launched-view-all-card"
+                onClick={() => selectCollection('new-arrivalss')}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    selectCollection('new-arrivalss');
+                  }
+                }}
+              >
+                <div className="view-all-content">
+                  <div className="view-all-icon-circle">
+                    <ArrowUpRight size={22} />
+                  </div>
+                  <span className="view-all-text">View all</span>
+                  <span className="view-all-sub">Browse full collection</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {catalog.data?.sourceOnline && <p className="sync-note"><span className="online-dot" /> Live collection synced {new Date(catalog.data.syncedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} · Tap a case to see its details</p>}
         </section>
 
@@ -615,7 +696,7 @@ function App() {
                   document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth' });
                 }}
                 onClose={() => setSearchModalOpen(false)}
-                placeholder="Search PhoneVilla & Framecase..."
+                placeholder="Search designs, collections, cases..."
               />
               <button
                 type="button"

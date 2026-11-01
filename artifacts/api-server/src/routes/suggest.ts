@@ -183,12 +183,8 @@ export function parseSuggestHtml(html: string, query: string): SuggestResponse {
       title = lines[0] || handle.replace(/-/g, " ");
     }
 
-    // Look for price (Rs. or ₹ or price class)
-    let price: string | undefined;
-    const priceMatch = /(?:₹|Rs\.?)\s*[\d,]+(?:\.\d+)?/i.exec(blockHtml);
-    if (priceMatch) {
-      price = priceMatch[0];
-    }
+    // Set all case final prices to 299 Rs
+    const price = "₹299";
 
     if (title && !seenProducts.has(handle)) {
       seenProducts.add(handle);
