@@ -1110,3 +1110,43 @@ h2 { margin-bottom: 0; font-size: clamp(38px, 5vw, 65px); line-height: .95; lett
     justify-content: center;
   }
 }
+
+/* Blog Text-Only Styling (No Images) */
+.blog-card.text-only {
+  border-top: 4px solid var(--ink);
+  background: #ffffff;
+}
+
+.blog-badge-tag {
+  background: var(--cream);
+  color: var(--ink);
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.about-highlights-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.about-highlights-list div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.about-highlights-list svg {
+  color: #17211f;
+  flex-shrink: 0;
+}
+
+.aesthetic-section {
+  margin-top: 36px;
+  border-top: 1px solid var(--line);
+}

@@ -1,4 +1,4 @@
-import { Sparkles, Shield, Heart, Mail, Instagram, ArrowLeft } from 'lucide-react';
+import { Sparkles, Shield, Heart, Mail, Instagram, ArrowLeft, Palette, CheckCircle2 } from 'lucide-react';
 
 interface AboutPageProps {
   onBack: () => void;
@@ -11,53 +11,59 @@ export function AboutPage({ onBack }: AboutPageProps) {
         <button type="button" className="back-to-catalog" onClick={onBack}>
           <ArrowLeft size={16} /> Back to shop
         </button>
-        <p className="eyebrow">Our Philosophy</p>
+        <p className="eyebrow">The Framecase Story</p>
         <h1 className="content-page-title">Cases with a point of view.</h1>
         <p className="content-page-subtitle">
-          At Framecase, we believe the device you carry everyday deserves more than an afterthought. It deserves a frame.
+          Engineered with mirror-gloss 9H tempered glass and striking visual artwork, Framecase transforms everyday smartphones into eye-catching designer essentials.
         </p>
       </div>
 
       <div className="about-grid">
         <section className="about-card">
-          <div className="about-card-icon"><Shield size={24} /></div>
-          <h3>The 9H Glass Standard</h3>
+          <div className="about-card-icon"><Palette size={24} /></div>
+          <h3>Unique & Attractive Designs</h3>
           <p>
-            Unlike conventional printed plastic covers that scratch, peel, and discolor within weeks, every Framecase design is sealed beneath a high-grade 9H tempered glass back. The art remains vibrant, glossy, and as crisp as day one.
+            We don’t do generic patterns. Every case design is an exclusive aesthetic piece—from high-energy motorsport and supercar graphics to nostalgic retro Japanese collages, expressive typography, celestial astrology, and modern minimalist art.
+          </p>
+        </section>
+
+        <section className="about-card">
+          <div className="about-card-icon"><Shield size={24} /></div>
+          <h3>High-Gloss 9H Tempered Glass</h3>
+          <p>
+            Unlike printed matte plastics that fade, yellow, or scratch, our artwork is sealed beneath a scratch-resistant 9H optical tempered glass plate. The result is a luminous, high-definition gloss finish that stays pristine year after year.
           </p>
         </section>
 
         <section className="about-card">
           <div className="about-card-icon"><Sparkles size={24} /></div>
-          <h3>Form Meets Impact Protection</h3>
+          <h3>Protective Shockproof TPU Bumpers</h3>
           <p>
-            Around the glass back lies a shock-absorbing, tactile TPU bumper with precise cutouts and responsive tactile buttons. Designed for everyday defense against drops, bumps, and scratches while keeping a slim in-hand profile.
-          </p>
-        </section>
-
-        <section className="about-card">
-          <div className="about-card-icon"><Heart size={24} /></div>
-          <h3>Curated for Every Mood</h3>
-          <p>
-            From minimalist aesthetics and typography to automotive culture and spiritual motifs, our collections reflect modern personal expression. We drop fresh designs weekly so your device never looks ordinary.
+            Beneath the stunning glass back lies a flexible, impact-absorbing TPU silicon bumper with tactile button covers, reinforced drop corners, and a raised 1.2mm camera rim designed to protect your device during everyday drops.
           </p>
         </section>
       </div>
 
       <div className="about-details-section">
         <div className="about-details-block">
-          <h2>Crafted For Everyday Life</h2>
+          <h2>Crafted To Stand Out</h2>
           <p>
-            Founded with the belief that design and protection don't have to be mutually exclusive, Framecase combines precision manufacturing with contemporary artistic sensibilities. Each case undergoes rigorous quality inspection before dispatch to ensure zero bubbles, clean edges, and flawless print fidelity.
+            Your smartphone is the most personal tech item you own. It rests on your desk in meetings, joins you at dinners, and accompanies every journey. We founded Framecase because standard phone cases are either bulky and uninspired or cheap and fragile.
           </p>
           <p>
-            We ship all across India with dedicated support ready to help you find the exact fit for your phone model—whether you're holding the latest iPhone, a flagship Samsung Galaxy, OnePlus, or popular devices from Vivo, Oppo, and Realme.
+            By fusing luxury glass aesthetics with reliable everyday impact defense, we deliver phone cases that feel incredible in hand and turn heads wherever you go. All cases are offered at an accessible price of ₹299 with support for over 100+ phone models across iPhone, Samsung, OnePlus, Vivo, Oppo, Realme, and Pixel.
           </p>
+          <div className="about-highlights-list">
+            <div><CheckCircle2 size={16} /> <span>Ultra-vibrant, non-fading sub-surface graphics</span></div>
+            <div><CheckCircle2 size={16} /> <span>Cool-to-the-touch premium glass tactile experience</span></div>
+            <div><CheckCircle2 size={16} /> <span>Reinforced impact corners with responsive tactile buttons</span></div>
+            <div><CheckCircle2 size={16} /> <span>Precision camera cutouts with 1.2mm raised protective lips</span></div>
+          </div>
         </div>
 
         <div className="contact-box">
-          <h3>Get In Touch</h3>
-          <p>Have a question about a phone model, order inquiry, or collaboration?</p>
+          <h3>Contact & Support</h3>
+          <p>Have questions about your phone model, order status, or design suggestions? We are here to help!</p>
           <div className="contact-links">
             <a href="mailto:nkeepson@gmail.com" className="contact-item">
               <Mail size={18} />

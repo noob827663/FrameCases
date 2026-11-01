@@ -331,6 +331,12 @@ function App() {
     page: 1,
   });
   const newlyLaunchedProducts = (newlyLaunchedCatalog.data?.products ?? []).slice(0, 20);
+  const aestheticCatalog = useGetCatalog({
+    collection: 'aesthetic-collection',
+    limit: 20,
+    page: 1,
+  });
+  const aestheticProducts = (aestheticCatalog.data?.products ?? []).slice(0, 20);
   const products = catalog.data?.products ?? [];
   const collections = catalog.data?.collections ?? [];
   const visibleCollections = showAllCollections ? collections : collections.slice(0, 12);
@@ -663,6 +669,80 @@ function App() {
                   if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
                     selectCollection('new-arrivalss');
+                  }
+                }}
+              >
+                <div className="view-all-content">
+                  <div className="view-all-icon-circle">
+                    <ArrowUpRight size={22} />
+                  </div>
+                  <span className="view-all-text">View all</span>
+                  <span className="view-all-sub">Browse full collection</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Aesthetic Collection horizontal section below newly launched */}
+          <div className="newly-launched-section aesthetic-section">
+            <div className="newly-launched-header">
+              <div>
+                <p className="eyebrow">Visual Moods</p>
+                <h3 className="newly-launched-title">Aesthetic Collection</h3>
+              </div>
+              <button
+                type="button"
+                className="text-button"
+                onClick={() => selectCollection('aesthetic-collection')}
+              >
+                View all aesthetic <ArrowUpRight size={15} />
+              </button>
+            </div>
+
+            <div className="newly-launched-scroll-container">
+              {aestheticProducts.map((p, idx) => (
+                <div
+                  key={p.id || idx}
+                  className="newly-launched-card"
+                  onClick={() => openProduct(p)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      openProduct(p);
+                    }
+                  }}
+                >
+                  <div className="newly-launched-card-image">
+                    {p.imageUrl ? (
+                      <img src={p.imageUrl} alt={p.title} loading="lazy" />
+                    ) : (
+                      <div className="image-fallback">
+                        <Sparkles size={20} />
+                      </div>
+                    )}
+                    <span className="newly-launched-badge">AESTHETIC</span>
+                  </div>
+                  <div className="newly-launched-card-info">
+                    <h4 className="newly-launched-card-title">{p.title}</h4>
+                    <div className="newly-launched-card-price">
+                      <strong>₹299</strong>
+                      {p.compareAtPrice && <span>{p.compareAtPrice}</span>}
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              <div
+                className="newly-launched-card newly-launched-view-all-card"
+                onClick={() => selectCollection('aesthetic-collection')}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    selectCollection('aesthetic-collection');
                   }
                 }}
               >
