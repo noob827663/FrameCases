@@ -357,8 +357,21 @@ function App() {
   const [orderModalMessage, setOrderModalMessage] = useState<string | null>(null);
   const [copiedOrder, setCopiedOrder] = useState(false);
   const [page, setPage] = useState(1);
-  const [currentView, setCurrentView] = useState<'catalog' | 'about' | 'faq' | 'blog' | 'category'>('catalog');
-  const [categoryViewSlug, setCategoryViewSlug] = useState<string | undefined>();
+  // Read initial path for direct endpoint navigation (e.g. /aesthetic-collection, /about, etc.)
+  const getInitialRouting = () => {
+    if (typeof window === 'undefined') return { view: 'catalog' as const, slug: undefined };
+    const pathname = window.location.pathname.replace(/^\/|\/$/g, '');
+    if (!pathname) return { view: 'catalog' as const, slug: undefined };
+    if (pathname === 'about' || pathname === 'faq' || pathname === 'blog') {
+      return { view: pathname as 'about' | 'faq' | 'blog', slug: undefined };
+    }
+    // Check if it's a category slug
+    return { view: 'category' as const, slug: pathname };
+  };
+
+  const initialRoute = useMemo(() => getInitialRouting(), []);
+  const [currentView, setCurrentView] = useState<'catalog' | 'about' | 'faq' | 'blog' | 'category'>(initialRoute.view);
+  const [categoryViewSlug, setCategoryViewSlug] = useState<string | undefined>(initialRoute.slug);
   const scrollPositionRef = useRef<number>(0);
   const params = useMemo(() => ({
     collection: selectedCollection,
@@ -400,13 +413,17 @@ function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  const navigateToView = (view: 'catalog' | 'about' | 'faq' | 'blog') => {
+  const navigateToView = (view: 'catalog' | 'about' | 'faq' | 'blog', pushHistory = true) => {
     setCurrentView(view);
     setActiveProduct(null);
     setMobileMenuOpen(false);
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
+    if (pushHistory) {
+      const targetPath = view === 'catalog' ? '/' : `/${view}`;
+      window.history.pushState({ view, slug: undefined }, '', targetPath);
+    }
   };
 
   useEffect(() => {
@@ -434,7 +451,7 @@ function App() {
     }
   }, [currentView, activeProduct, selectedCollection, currentLabel, categoryViewSlug]);
 
-  const openCategoryPage = (slug: string) => {
+  const openCategoryPage = (slug: string, pushHistory = true) => {
     setCategoryViewSlug(slug);
     setSelectedCollection(slug);
     setSearch('');
@@ -445,7 +462,29 @@ function App() {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
+    if (pushHistory) {
+      window.history.pushState({ view: 'category', slug }, '', `/${slug}`);
+    }
   };
+
+  // Listen for browser back / forward buttons
+  useEffect(() => {
+    const handlePopState = () => {
+      const pathname = window.location.pathname.replace(/^\/|\/$/g, '');
+      if (!pathname) {
+        setCurrentView('catalog');
+        setSelectedCollection(undefined);
+      } else if (pathname === 'about' || pathname === 'faq' || pathname === 'blog') {
+        setCurrentView(pathname);
+      } else {
+        setCategoryViewSlug(pathname);
+        setSelectedCollection(pathname);
+        setCurrentView('category');
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   const selectCollection = (slug?: string) => {
     setCurrentView('catalog');
