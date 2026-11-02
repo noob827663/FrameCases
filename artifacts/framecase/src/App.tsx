@@ -33,7 +33,7 @@ function ProductCard({ product, index, onOpen }: { product: CatalogProduct; inde
 
   const handleShare = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    const productUrl = `${window.location.origin}/?product=${encodeURIComponent(product.id || product.title)}`;
+    const productUrl = `${window.location.origin}/products/${encodeURIComponent(product.id || product.title)}`;
     const shareData = {
       title: product.title,
       text: `Check out this unique ${product.title} phone case on Framecase for just ${product.price}!`,
@@ -256,7 +256,7 @@ function ProductPage({ product, onBack, onAddToCart, onBuyNow }: {
               type="button"
               className="product-detail-share-btn"
               onClick={async () => {
-                const productUrl = `${window.location.origin}/?product=${encodeURIComponent(product.id || product.title)}`;
+                const productUrl = `${window.location.origin}/products/${encodeURIComponent(product.id || product.title)}`;
                 const shareData = {
                   title: product.title,
                   text: `Check out this unique ${product.title} phone case on Framecase for just ${product.price}!`,
@@ -434,16 +434,25 @@ function App() {
   const [orderModalMessage, setOrderModalMessage] = useState<string | null>(null);
   const [copiedOrder, setCopiedOrder] = useState(false);
   const [page, setPage] = useState(1);
-  // Read initial path for direct endpoint navigation (e.g. /aesthetic-collection, /about, etc.)
+  // Read initial path for direct endpoint navigation (e.g. /products/:handle, /aesthetic-collection, /about, etc.)
   const getInitialRouting = () => {
-    if (typeof window === 'undefined') return { view: 'catalog' as const, slug: undefined };
+    if (typeof window === 'undefined') return { view: 'catalog' as const, slug: undefined, productHandle: undefined };
+    const urlParams = new URLSearchParams(window.location.search);
+    const queryProduct = urlParams.get('product');
+
     const pathname = window.location.pathname.replace(/^\/|\/$/g, '');
-    if (!pathname) return { view: 'catalog' as const, slug: undefined };
-    if (pathname === 'about' || pathname === 'faq' || pathname === 'blog') {
-      return { view: pathname as 'about' | 'faq' | 'blog', slug: undefined };
+    if (pathname.startsWith('products/')) {
+      const handle = pathname.replace('products/', '');
+      return { view: 'catalog' as const, slug: undefined, productHandle: handle };
     }
-    // Check if it's a category slug
-    return { view: 'category' as const, slug: pathname };
+    if (queryProduct) {
+      return { view: 'catalog' as const, slug: undefined, productHandle: queryProduct };
+    }
+    if (!pathname) return { view: 'catalog' as const, slug: undefined, productHandle: undefined };
+    if (pathname === 'about' || pathname === 'faq' || pathname === 'blog') {
+      return { view: pathname as 'about' | 'faq' | 'blog', slug: undefined, productHandle: undefined };
+    }
+    return { view: 'category' as const, slug: pathname, productHandle: undefined };
   };
 
   const initialRoute = useMemo(() => getInitialRouting(), []);
@@ -585,21 +594,42 @@ function App() {
     window.setTimeout(() => document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 0);
   };
 
-  const openProduct = (product: CatalogProduct) => {
+  const openProduct = (product: CatalogProduct, pushHistory = true) => {
     scrollPositionRef.current = window.scrollY;
     setActiveProduct(product);
     setCartOpen(false);
     setMobileMenuOpen(false);
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    if (pushHistory) {
+      const productPath = `/products/${encodeURIComponent(product.id || product.title)}`;
+      window.history.pushState({ view: 'product', productId: product.id }, '', productPath);
+    }
   };
 
   const handleBackToCatalog = () => {
     setActiveProduct(null);
+    const returnPath = currentView === 'category' && categoryViewSlug ? `/${categoryViewSlug}` : '/';
+    window.history.pushState({ view: currentView, slug: categoryViewSlug }, '', returnPath);
     const targetY = scrollPositionRef.current;
     window.requestAnimationFrame(() => {
       window.scrollTo({ top: targetY, left: 0, behavior: 'instant' });
     });
   };
+
+  // Auto-open product page if visited via direct link (e.g. /products/:handle or ?product=...)
+  useEffect(() => {
+    if (initialRoute.productHandle) {
+      const cleanHandle = initialRoute.productHandle.trim().toLowerCase();
+      fetch(`/api/products/${encodeURIComponent(cleanHandle)}`)
+        .then((res) => (res.ok ? res.json() : null))
+        .then((productData) => {
+          if (productData) {
+            openProduct(productData, false);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [initialRoute.productHandle]);
 
   const handleSelectSuggestedProduct = async (p: SuggestProduct) => {
     // 1. If it's already in the catalog list, open directly
