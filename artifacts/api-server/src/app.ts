@@ -39,7 +39,33 @@ const clientDistPath = path.resolve(
 );
 
 if (fs.existsSync(clientDistPath)) {
-  app.use(express.static(clientDistPath));
+  // Never cache HTML and favicon routes on the server to prevent stale browser caches
+  app.use((req, res, next) => {
+    if (req.path === "/" || req.path.includes("favicon") || req.path.endsWith(".html")) {
+      res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+      res.setHeader("Pragma", "no-cache");
+      res.setHeader("Expires", "0");
+    }
+    next();
+  });
+
+  // Explicit favicon routes to guarantee latest version is served without stale caching
+  app.get("/favicon.ico", (req, res) => {
+    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+    res.sendFile(path.join(clientDistPath, "favicon.ico"));
+  });
+  app.get("/favicon.png", (req, res) => {
+    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+    res.sendFile(path.join(clientDistPath, "favicon.png"));
+  });
+
+  app.use(express.static(clientDistPath, {
+    setHeaders: (res, filePath) => {
+      if (filePath.includes("favicon") || filePath.endsWith("index.html")) {
+        res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+      }
+    }
+  }));
 
   app.get("/{*splat}", async (req, res, next) => {
     if (req.path.startsWith("/api")) {
@@ -49,6 +75,9 @@ if (fs.existsSync(clientDistPath)) {
     const indexPath = path.join(clientDistPath, "index.html");
     const rawProduct = (req.query.product as string) || (req.path.startsWith("/products/") ? req.path.replace("/products/", "") : "");
 
+    const cleanPath = req.path.replace(/^\/|\/$/g, "");
+
+    // 1. Product SSR SEO injection
     if (rawProduct) {
       try {
         const handle = rawProduct.trim().toLowerCase();
@@ -87,6 +116,39 @@ if (fs.existsSync(clientDistPath)) {
         }
       } catch {
         // Fallback to sending standard index.html
+      }
+    }
+
+    // 2. View/Category SSR SEO injection
+    if (cleanPath) {
+      let pageTitle = "";
+      let pageDesc = "";
+
+      if (cleanPath === "about") {
+        pageTitle = "About Us — Unique & Attractive Design Phone Cases | Framecase";
+        pageDesc = "Discover Framecase: unique & attractive design phone cases featuring optical glass finish, flexible shockproof TPU borders, and accessible ₹299 pricing.";
+      } else if (cleanPath === "faq") {
+        pageTitle = "Frequently Asked Questions (FAQs) — Unique Design Phone Covers | Framecase";
+        pageDesc = "Everything you need to know about Framecase phone cases, supported devices (iPhone, Samsung, OnePlus, Vivo, Oppo, Realme), shipping across India, and durability.";
+      } else if (cleanPath === "blog") {
+        pageTitle = "Framecase Journal — Unique & Attractive Phone Case Designs";
+        pageDesc = "Read in-depth articles and guides about phone case aesthetics, everyday drop protection, and styling your smartphone carry.";
+      } else {
+        const catName = cleanPath.replace(/-/g, " ");
+        pageTitle = `${catName.charAt(0).toUpperCase() + catName.slice(1)} Phone Cases — Unique & Attractive Covers (₹299) | Framecase`;
+        pageDesc = `Shop ${catName} phone cases with unique, attractive designs for iPhone, Samsung, OnePlus and more at ₹299 with free shipping across India.`;
+      }
+
+      if (pageTitle && pageDesc) {
+        let html = fs.readFileSync(indexPath, "utf8");
+        html = html.replace(/<title>[\s\S]*?<\/title>/i, `<title>${pageTitle}</title>`);
+        html = html.replace(/<meta property="og:title" content="[^"]*"/i, `<meta property="og:title" content="${pageTitle}"`);
+        html = html.replace(/<meta name="twitter:title" content="[^"]*"/i, `<meta name="twitter:title" content="${pageTitle}"`);
+        html = html.replace(/<meta name="description" content="[^"]*"/i, `<meta name="description" content="${pageDesc}"`);
+        html = html.replace(/<meta property="og:description" content="[^"]*"/i, `<meta property="og:description" content="${pageDesc}"`);
+        html = html.replace(/<meta name="twitter:description" content="[^"]*"/i, `<meta name="twitter:description" content="${pageDesc}"`);
+        res.send(html);
+        return;
       }
     }
 

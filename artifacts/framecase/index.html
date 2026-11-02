@@ -80,24 +80,33 @@
     <script>
       (function() {
         try {
-          var cacheBuster = 'fc_' + new Date().getFullYear() + 'v3';
-          var existingIcons = document.querySelectorAll("link[rel*='icon']");
+          // Ultra-aggressive favicon cache bust for base URL & all browsers
+          var cacheBuster = 'v=' + Date.now();
+          var existingIcons = document.querySelectorAll("link[rel*='icon'], link[rel*='shortcut']");
           existingIcons.forEach(function(el) { el.remove(); });
 
           var head = document.head || document.getElementsByTagName('head')[0];
 
+          // Re-inject fresh versioned favicon links
           var ico = document.createElement('link');
-          ico.rel = 'icon';
+          ico.rel = 'shortcut icon';
           ico.type = 'image/x-icon';
           ico.href = '/favicon.ico?' + cacheBuster;
           head.appendChild(ico);
 
-          var png = document.createElement('link');
-          png.rel = 'icon';
-          png.type = 'image/png';
-          png.sizes = '192x192';
-          png.href = '/favicon.png?' + cacheBuster;
-          head.appendChild(png);
+          var png192 = document.createElement('link');
+          png192.rel = 'icon';
+          png192.type = 'image/png';
+          png192.sizes = '192x192';
+          png192.href = '/favicon.png?' + cacheBuster;
+          head.appendChild(png192);
+
+          var png32 = document.createElement('link');
+          png32.rel = 'icon';
+          png32.type = 'image/png';
+          png32.sizes = '32x32';
+          png32.href = '/favicon.png?' + cacheBuster;
+          head.appendChild(png32);
 
           var apple = document.createElement('link');
           apple.rel = 'apple-touch-icon';
