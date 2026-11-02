@@ -551,7 +551,7 @@ function App() {
     }
 
     // Maintain consistent canonical favicon references across client-side view changes
-    const v = 'fc2';
+    const v = 'fc3';
     const favicons = [
       { rel: 'icon', type: 'image/svg+xml', href: `/favicon.svg?v=${v}`, sizes: undefined },
       { rel: 'icon', type: 'image/png', href: `/favicon.png?v=${v}`, sizes: '48x48' },
