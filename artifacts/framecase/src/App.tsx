@@ -478,7 +478,16 @@ function App() {
     page: 1,
   });
   const aestheticProducts = (aestheticCatalog.data?.products ?? []).slice(0, 20);
-  const products = catalog.data?.products ?? [];
+  const rawProducts = catalog.data?.products ?? [];
+  // Ensure strict deduplication by product id/handle
+  const products = useMemo(() => {
+    const seen = new Set<string>();
+    return rawProducts.filter((p) => {
+      if (seen.has(p.id)) return false;
+      seen.add(p.id);
+      return true;
+    });
+  }, [rawProducts]);
   const collections = catalog.data?.collections ?? [];
   const visibleCollections = showAllCollections ? collections : collections.slice(0, 12);
   const currentLabel = selectedCollection
@@ -817,6 +826,10 @@ function App() {
                     setSearch(val);
                     setPage(1);
                   }}
+                  onSelectQuery={(q: string) => {
+                    setSearch(q);
+                    setPage(1);
+                  }}
                   onSelectProduct={(p: SuggestProduct) => {
                     handleSelectSuggestedProduct(p);
                   }}
@@ -945,6 +958,10 @@ function App() {
                 value={search}
                 onChange={(val: string) => {
                   setSearch(val);
+                  setPage(1);
+                }}
+                onSelectQuery={(q: string) => {
+                  setSearch(q);
                   setPage(1);
                 }}
                 onSelectProduct={(p: SuggestProduct) => {
@@ -1197,6 +1214,12 @@ function App() {
                 onChange={(val: string) => {
                   setSearch(val);
                   setPage(1);
+                }}
+                onSelectQuery={(q: string) => {
+                  setSearch(q);
+                  setPage(1);
+                  setSearchModalOpen(false);
+                  document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth' });
                 }}
                 onSelectProduct={(p: SuggestProduct) => {
                   setSearchModalOpen(false);

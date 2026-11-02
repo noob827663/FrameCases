@@ -67,6 +67,32 @@ if (fs.existsSync(clientDistPath)) {
     }
   }));
 
+  // Whitelist of valid category slugs supported by the platform
+  const VALID_CATEGORY_SLUGS = new Set([
+    "aesthetic-collection",
+    "cars-bikes-collection",
+    "sports-collection",
+    "new-designs",
+    "new-arrivalss",
+    "best-sellers",
+    "art-collection",
+    "zodiac-sign",
+    "mens-collection",
+    "girls-collection",
+    "cats-collection",
+    "evil-eye-nazar",
+    "all",
+  ]);
+
+  function escapeHtml(str: string): string {
+    return str
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
   app.get("/{*splat}", async (req, res, next) => {
     if (req.path.startsWith("/api")) {
       return next();
@@ -81,45 +107,52 @@ if (fs.existsSync(clientDistPath)) {
     if (rawProduct) {
       try {
         const handle = rawProduct.trim().toLowerCase();
-        const url = `https://phonevilla.in/products/${encodeURIComponent(handle)}.js`;
-        const pRes = await fetch(url, {
-          headers: { "User-Agent": "Framecase Catalog Sync/1.0", Accept: "application/json" },
-          signal: AbortSignal.timeout(4_000),
-        });
+        // Disallow dangerous or unexpected product handles
+        if (/^[a-z0-9_-]+$/i.test(handle)) {
+          const url = `https://phonevilla.in/products/${encodeURIComponent(handle)}.js`;
+          const pRes = await fetch(url, {
+            headers: { "User-Agent": "Framecase Catalog Sync/1.0", Accept: "application/json" },
+            signal: AbortSignal.timeout(4_000),
+          });
 
-        if (pRes.ok) {
-          const data: any = await pRes.json();
-          const title = data.title ? `${data.title} — Unique & Attractive Design Case (₹299) | Framecase` : "Framecase";
-          const desc = data.description ? data.description.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 160) : "Shop unique & attractive design phone cases at ₹299.";
-          let img = data.images?.[0] || "";
-          if (img.startsWith("//")) img = `https:${img}`;
+          if (pRes.ok) {
+            const data: any = await pRes.json();
+            const rawTitle = data.title ? `${data.title} — Unique & Attractive Design Case (₹299) | Framecase` : "Framecase";
+            const rawDesc = data.description ? data.description.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 160) : "Shop unique & attractive design phone cases at ₹299.";
+            let img = data.images?.[0] || "";
+            if (img.startsWith("//")) img = `https:${img}`;
 
-          let html = fs.readFileSync(indexPath, "utf8");
-          if (title) {
-            html = html.replace(/<title>[\s\S]*?<\/title>/i, `<title>${title}</title>`);
-            html = html.replace(/<meta property="og:title" content="[^"]*"/i, `<meta property="og:title" content="${title}"`);
-            html = html.replace(/<meta name="twitter:title" content="[^"]*"/i, `<meta name="twitter:title" content="${title}"`);
-          }
-          if (desc) {
-            html = html.replace(/<meta name="description" content="[^"]*"/i, `<meta name="description" content="${desc}"`);
-            html = html.replace(/<meta property="og:description" content="[^"]*"/i, `<meta property="og:description" content="${desc}"`);
-            html = html.replace(/<meta name="twitter:description" content="[^"]*"/i, `<meta name="twitter:description" content="${desc}"`);
-          }
-          if (img) {
-            html = html.replace(/<meta property="og:image" content="[^"]*"/i, "");
-            html = html.replace(/<meta name="twitter:image" content="[^"]*"/i, "");
-            html = html.replace("</head>", `  <meta property="og:image" content="${img}" />\n    <meta property="og:image:secure_url" content="${img}" />\n    <meta property="og:image:width" content="1200" />\n    <meta property="og:image:height" content="1200" />\n    <meta name="twitter:image" content="${img}" />\n  </head>`);
-          }
+            const safeTitle = escapeHtml(rawTitle);
+            const safeDesc = escapeHtml(rawDesc);
+            const safeImg = escapeHtml(img);
 
-          res.send(html);
-          return;
+            let html = fs.readFileSync(indexPath, "utf8");
+            if (safeTitle) {
+              html = html.replace(/<title>[\s\S]*?<\/title>/i, () => `<title>${safeTitle}</title>`);
+              html = html.replace(/<meta property="og:title" content="[^"]*"/i, () => `<meta property="og:title" content="${safeTitle}"`);
+              html = html.replace(/<meta name="twitter:title" content="[^"]*"/i, () => `<meta name="twitter:title" content="${safeTitle}"`);
+            }
+            if (safeDesc) {
+              html = html.replace(/<meta name="description" content="[^"]*"/i, () => `<meta name="description" content="${safeDesc}"`);
+              html = html.replace(/<meta property="og:description" content="[^"]*"/i, () => `<meta property="og:description" content="${safeDesc}"`);
+              html = html.replace(/<meta name="twitter:description" content="[^"]*"/i, () => `<meta name="twitter:description" content="${safeDesc}"`);
+            }
+            if (safeImg) {
+              html = html.replace(/<meta property="og:image" content="[^"]*"/i, "");
+              html = html.replace(/<meta name="twitter:image" content="[^"]*"/i, "");
+              html = html.replace("</head>", () => `  <meta property="og:image" content="${safeImg}" />\n    <meta property="og:image:secure_url" content="${safeImg}" />\n    <meta property="og:image:width" content="1200" />\n    <meta property="og:image:height" content="1200" />\n    <meta name="twitter:image" content="${safeImg}" />\n  </head>`);
+            }
+
+            res.send(html);
+            return;
+          }
         }
       } catch {
         // Fallback to sending standard index.html
       }
     }
 
-    // 2. View/Category SSR SEO injection
+    // 2. View/Category SSR SEO injection (only for validated paths)
     if (cleanPath) {
       let pageTitle = "";
       let pageDesc = "";
@@ -133,20 +166,23 @@ if (fs.existsSync(clientDistPath)) {
       } else if (cleanPath === "blog") {
         pageTitle = "Framecase Journal — Unique & Attractive Phone Case Designs";
         pageDesc = "Read in-depth articles and guides about phone case aesthetics, everyday drop protection, and styling your smartphone carry.";
-      } else {
+      } else if (VALID_CATEGORY_SLUGS.has(cleanPath)) {
         const catName = cleanPath.replace(/-/g, " ");
         pageTitle = `${catName.charAt(0).toUpperCase() + catName.slice(1)} Phone Cases — Unique & Attractive Covers (₹299) | Framecase`;
         pageDesc = `Shop ${catName} phone cases with unique, attractive designs for iPhone, Samsung, OnePlus and more at ₹299 with free shipping across India.`;
       }
 
       if (pageTitle && pageDesc) {
+        const safeTitle = escapeHtml(pageTitle);
+        const safeDesc = escapeHtml(pageDesc);
+
         let html = fs.readFileSync(indexPath, "utf8");
-        html = html.replace(/<title>[\s\S]*?<\/title>/i, `<title>${pageTitle}</title>`);
-        html = html.replace(/<meta property="og:title" content="[^"]*"/i, `<meta property="og:title" content="${pageTitle}"`);
-        html = html.replace(/<meta name="twitter:title" content="[^"]*"/i, `<meta name="twitter:title" content="${pageTitle}"`);
-        html = html.replace(/<meta name="description" content="[^"]*"/i, `<meta name="description" content="${pageDesc}"`);
-        html = html.replace(/<meta property="og:description" content="[^"]*"/i, `<meta property="og:description" content="${pageDesc}"`);
-        html = html.replace(/<meta name="twitter:description" content="[^"]*"/i, `<meta name="twitter:description" content="${pageDesc}"`);
+        html = html.replace(/<title>[\s\S]*?<\/title>/i, () => `<title>${safeTitle}</title>`);
+        html = html.replace(/<meta property="og:title" content="[^"]*"/i, () => `<meta property="og:title" content="${safeTitle}"`);
+        html = html.replace(/<meta name="twitter:title" content="[^"]*"/i, () => `<meta name="twitter:title" content="${safeTitle}"`);
+        html = html.replace(/<meta name="description" content="[^"]*"/i, () => `<meta name="description" content="${safeDesc}"`);
+        html = html.replace(/<meta property="og:description" content="[^"]*"/i, () => `<meta property="og:description" content="${safeDesc}"`);
+        html = html.replace(/<meta name="twitter:description" content="[^"]*"/i, () => `<meta name="twitter:description" content="${safeDesc}"`);
         res.send(html);
         return;
       }
