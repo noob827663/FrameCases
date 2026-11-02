@@ -46,11 +46,14 @@ if (fs.existsSync(clientDistPath)) {
   };
 
   // Explicit favicon routes with no-cache headers to guarantee fresh favicons
-  const faviconFiles = ["favicon.ico", "favicon.png", "favicon.svg", "favicon.jpeg", "favicon.jpg"];
+  const faviconFiles = ["favicon.ico", "favicon.png", "favicon.svg", "favicon.jpeg", "favicon.jpg", "apple-touch-icon.png", "apple-touch-icon-precomposed.png"];
   for (const fav of faviconFiles) {
     app.get(`/${fav}`, (_req, res) => {
       setHtmlAndFaviconCacheHeaders(res);
-      res.sendFile(path.join(clientDistPath, fav));
+      const targetFile = fav.startsWith("apple-touch-icon")
+        ? (fs.existsSync(path.join(clientDistPath, "apple-touch-icon.png")) ? "apple-touch-icon.png" : "favicon.png")
+        : fav;
+      res.sendFile(path.join(clientDistPath, targetFile));
     });
   }
 
