@@ -756,7 +756,7 @@ function App() {
       <div className="announcement"><span>Complimentary shipping on orders over ₹999</span><span className="announcement-detail">Designed to be noticed. Built to protect.</span></div>
       <header className="site-header">
         <a href="/" className="brand" aria-label="Framecase home">
-          <span className="brand-mark">F</span>
+          <img src="/brand-logo.png" alt="FrameCase" className="brand-logo" width="30" height="30" />
           <span className="brand-word">Frame<span>Case</span></span>
         </a>
         <nav className="desktop-nav" aria-label="Primary navigation">
