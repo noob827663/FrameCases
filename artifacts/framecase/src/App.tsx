@@ -530,7 +530,7 @@ function App() {
     }
   }, [currentView]);
 
-  // Dynamic SEO Title and Meta Description
+  // Dynamic SEO Title and Meta Description + Favicon maintenance across SPA views
   useEffect(() => {
     if (activeProduct) {
       document.title = `${activeProduct.title} — Unique & Attractive Design Case (₹299) | Framecase`;
@@ -549,6 +549,28 @@ function App() {
     } else {
       document.title = 'Framecase — Unique & Attractive Design Phone Cases, Covers (₹299) | iPhone, Samsung, OnePlus';
     }
+
+    // Maintain consistent canonical favicon references across client-side view changes
+    const v = 'fc2';
+    const favicons = [
+      { rel: 'icon', type: 'image/svg+xml', href: `/favicon.svg?v=${v}` },
+      { rel: 'alternate icon', type: 'image/png', href: `/favicon.png?v=${v}` },
+      { rel: 'shortcut icon', href: `/favicon.ico?v=${v}` },
+      { rel: 'apple-touch-icon', href: `/favicon.png?v=${v}` }
+    ];
+    favicons.forEach(({ rel, type, href }) => {
+      const selector = `link[rel='${rel}']` + (type ? `[type='${type}']` : '');
+      let el = document.querySelector<HTMLLinkElement>(selector);
+      if (!el) {
+        el = document.createElement('link');
+        el.rel = rel;
+        if (type) el.type = type;
+        document.head.appendChild(el);
+      }
+      if (el.href !== href && !el.href.endsWith(href)) {
+        el.href = href;
+      }
+    });
   }, [currentView, activeProduct, selectedCollection, currentLabel, categoryViewSlug]);
 
   const openCategoryPage = (slug: string, pushHistory = true) => {

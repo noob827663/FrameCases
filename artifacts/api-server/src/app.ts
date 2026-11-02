@@ -39,30 +39,26 @@ const clientDistPath = path.resolve(
 );
 
 if (fs.existsSync(clientDistPath)) {
-  // Never cache HTML and favicon routes on the server to prevent stale browser caches
-  app.use((req, res, next) => {
-    if (req.path === "/" || req.path.includes("favicon") || req.path.endsWith(".html")) {
-      res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
-      res.setHeader("Pragma", "no-cache");
-      res.setHeader("Expires", "0");
-    }
-    next();
-  });
+  const setHtmlAndFaviconCacheHeaders = (res: express.Response) => {
+    res.setHeader("Cache-Control", "no-cache, must-revalidate");
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", "0");
+  };
 
-  // Explicit favicon routes to guarantee latest version is served without stale caching
-  app.get("/favicon.ico", (req, res) => {
-    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
-    res.sendFile(path.join(clientDistPath, "favicon.ico"));
-  });
-  app.get("/favicon.png", (req, res) => {
-    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
-    res.sendFile(path.join(clientDistPath, "favicon.png"));
-  });
+  // Explicit favicon routes with no-cache headers to guarantee fresh favicons
+  const faviconFiles = ["favicon.ico", "favicon.png", "favicon.svg", "favicon.jpeg", "favicon.jpg"];
+  for (const fav of faviconFiles) {
+    app.get(`/${fav}`, (_req, res) => {
+      setHtmlAndFaviconCacheHeaders(res);
+      res.sendFile(path.join(clientDistPath, fav));
+    });
+  }
 
+  // Static assets serving: ensure HTML and favicon files use no-cache, while hashed JS/CSS keep default caching
   app.use(express.static(clientDistPath, {
     setHeaders: (res, filePath) => {
-      if (filePath.includes("favicon") || filePath.endsWith("index.html")) {
-        res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
+      if (filePath.includes("favicon") || filePath.endsWith(".html") || filePath.endsWith("index.html")) {
+        setHtmlAndFaviconCacheHeaders(res);
       }
     }
   }));
@@ -97,6 +93,9 @@ if (fs.existsSync(clientDistPath)) {
     if (req.path.startsWith("/api")) {
       return next();
     }
+
+    // Always ensure HTML document responses never cache stale contents or favicons
+    setHtmlAndFaviconCacheHeaders(res);
 
     const indexPath = path.join(clientDistPath, "index.html");
     const rawProduct = (req.query.product as string) || (req.path.startsWith("/products/") ? req.path.replace("/products/", "") : "");
