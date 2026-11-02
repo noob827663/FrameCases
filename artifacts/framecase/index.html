@@ -72,48 +72,32 @@
         ]
       }
     </script>
-    <link rel="icon" id="dynamic-favicon-ico" href="/favicon.ico?v=3" />
-    <link rel="icon" id="dynamic-favicon-png" type="image/png" href="/favicon.png?v=3" />
-    <link rel="icon" id="dynamic-favicon-jpeg" type="image/jpeg" href="/favicon.jpeg?v=3" />
-    <link rel="icon" id="dynamic-favicon-svg" type="image/svg+xml" href="/favicon.svg?v=3" />
-    <link rel="apple-touch-icon" id="dynamic-apple-icon" href="/favicon.png?v=3" />
+    <!-- Force new favicon on Base URL and all endpoints (cache-busted with v=4 + dynamic re-inject) -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico?v=4" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png?v=4" />
+    <link rel="icon" type="image/jpeg" href="/favicon.jpeg?v=4" />
+    <link rel="shortcut icon" href="/favicon.ico?v=4" />
+    <link rel="apple-touch-icon" href="/favicon.png?v=4" />
     <script>
       (function() {
         try {
-          // Ultra-aggressive favicon cache bust for base URL & all browsers
-          var cacheBuster = 'v=' + Date.now();
-          var existingIcons = document.querySelectorAll("link[rel*='icon'], link[rel*='shortcut']");
-          existingIcons.forEach(function(el) { el.remove(); });
-
-          var head = document.head || document.getElementsByTagName('head')[0];
-
-          // Re-inject fresh versioned favicon links
-          var ico = document.createElement('link');
-          ico.rel = 'shortcut icon';
-          ico.type = 'image/x-icon';
-          ico.href = '/favicon.ico?' + cacheBuster;
-          head.appendChild(ico);
-
-          var png192 = document.createElement('link');
-          png192.rel = 'icon';
-          png192.type = 'image/png';
-          png192.sizes = '192x192';
-          png192.href = '/favicon.png?' + cacheBuster;
-          head.appendChild(png192);
-
-          var png32 = document.createElement('link');
-          png32.rel = 'icon';
-          png32.type = 'image/png';
-          png32.sizes = '32x32';
-          png32.href = '/favicon.png?' + cacheBuster;
-          head.appendChild(png32);
+          var bust = 't=' + new Date().getTime();
+          var oldIcons = document.querySelectorAll("link[rel*='icon'], link[rel*='shortcut']");
+          for (var i = 0; i < oldIcons.length; i++) {
+            oldIcons[i].parentNode.removeChild(oldIcons[i]);
+          }
+          var head = document.getElementsByTagName('head')[0];
+          var link = document.createElement('link');
+          link.rel = 'icon';
+          link.type = 'image/png';
+          link.href = '/favicon.png?' + bust;
+          head.appendChild(link);
 
           var apple = document.createElement('link');
           apple.rel = 'apple-touch-icon';
-          apple.sizes = '180x180';
-          apple.href = '/favicon.png?' + cacheBuster;
+          apple.href = '/favicon.png?' + bust;
           head.appendChild(apple);
-        } catch (e) {}
+        } catch(e) {}
       })();
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
