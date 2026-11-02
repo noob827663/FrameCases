@@ -69,20 +69,28 @@ function ProductCard({ product, index, onOpen }: { product: CatalogProduct; inde
       </button>
       <div className="product-info">
         <div className="product-copy">
-          <div className="product-header-row">
-            <p className="product-collection">{product.collectionName}</p>
+          <p className="product-collection">{product.collectionName}</p>
+          <div className="product-title-row">
+            <h3 title={product.title}>{product.title}</h3>
             <button
               type="button"
-              className="product-share-btn"
+              className="product-card-share-action"
               onClick={handleShare}
               aria-label={`Share ${product.title}`}
-              title={copiedShare ? 'Link copied!' : 'Share product'}
+              title={copiedShare ? 'Link copied!' : 'Share product direct link'}
             >
-              {copiedShare ? <Check size={14} className="text-green-600" /> : <Share2 size={14} />}
+              {copiedShare ? (
+                <>
+                  <Check size={13} className="text-green-600" />
+                  <span>Copied</span>
+                </>
+              ) : (
+                <>
+                  <Share2 size={13} />
+                  <span>Share</span>
+                </>
+              )}
             </button>
-          </div>
-          <div className="product-title-row">
-            <h3>{product.title}</h3>
           </div>
           <p className="product-description">{product.description}</p>
           <div className="price-row">
@@ -241,11 +249,9 @@ function ProductPage({ product, onBack, onAddToCart, onBuyNow }: {
           {product.imageUrl ? <img src={product.imageUrl} alt={product.title} /> : <div className="image-fallback"><Sparkles size={30} /><span>Framecase</span></div>}
         </div>
         <div className="product-page-details">
+          <p className="product-collection">{product.collectionName}</p>
           <div className="product-page-title-row">
-            <div>
-              <p className="product-collection">{product.collectionName}</p>
-              <h1>{product.title}</h1>
-            </div>
+            <h1>{product.title}</h1>
             <button
               type="button"
               className="product-detail-share-btn"
@@ -264,13 +270,13 @@ function ProductPage({ product, onBack, onAddToCart, onBuyNow }: {
                 }
                 if (navigator.clipboard) {
                   await navigator.clipboard.writeText(productUrl);
-                  alert('Product link copied to clipboard!');
+                  alert('Product link copied to clipboard! You can now paste and send to friends.');
                 }
               }}
               aria-label={`Share ${product.title}`}
-              title="Share product direct link"
+              title="Share product direct link to friends"
             >
-              <Share2 size={18} />
+              <Share2 size={16} />
               <span>Share</span>
             </button>
           </div>
