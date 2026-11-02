@@ -553,18 +553,19 @@ function App() {
     // Maintain consistent canonical favicon references across client-side view changes
     const v = 'fc2';
     const favicons = [
-      { rel: 'icon', type: 'image/svg+xml', href: `/favicon.svg?v=${v}` },
-      { rel: 'alternate icon', type: 'image/png', href: `/favicon.png?v=${v}` },
-      { rel: 'shortcut icon', href: `/favicon.ico?v=${v}` },
-      { rel: 'apple-touch-icon', href: `/favicon.png?v=${v}` }
+      { rel: 'icon', type: 'image/svg+xml', href: `/favicon.svg?v=${v}`, sizes: undefined },
+      { rel: 'icon', type: 'image/png', href: `/favicon.png?v=${v}`, sizes: '48x48' },
+      { rel: 'shortcut icon', href: `/favicon.ico?v=${v}`, sizes: undefined },
+      { rel: 'apple-touch-icon', href: `/apple-touch-icon.png?v=${v}`, sizes: '180x180' }
     ];
-    favicons.forEach(({ rel, type, href }) => {
-      const selector = `link[rel='${rel}']` + (type ? `[type='${type}']` : '');
+    favicons.forEach(({ rel, type, href, sizes }) => {
+      const selector = `link[rel='${rel}']` + (type ? `[type='${type}']` : '') + (sizes ? `[sizes='${sizes}']` : '');
       let el = document.querySelector<HTMLLinkElement>(selector);
       if (!el) {
         el = document.createElement('link');
         el.rel = rel;
         if (type) el.type = type;
+        if (sizes) el.sizes.value = sizes;
         document.head.appendChild(el);
       }
       if (el.href !== href && !el.href.endsWith(href)) {
