@@ -2,7 +2,7 @@ import { type ChangeEvent, type ReactNode, useEffect, useMemo, useRef, useState 
 import { useGetCatalog } from '@workspace/api-client-react';
 import type { CatalogProduct } from '@workspace/api-client-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ArrowUpRight, ChevronRight, Copy, Check, Heart, Instagram, Menu, Search, ShieldCheck, ShoppingBag, Sparkles, Truck, X } from 'lucide-react';
+import { ArrowUpRight, ChevronRight, Copy, Check, Heart, Instagram, Menu, Search, Share2, ShieldCheck, ShoppingBag, Sparkles, Truck, X } from 'lucide-react';
 import { Toaster } from '@/components/ui/toaster';
 import { PredictiveSearchBox, type SuggestProduct, type SuggestCollection } from '@/components/predictive-search';
 import { ErrorBoundary } from '@/components/error-boundary';
@@ -29,6 +29,33 @@ const navCollections = [
 
 function ProductCard({ product, index, onOpen }: { product: CatalogProduct; index: number; onOpen: (product: CatalogProduct) => void }) {
   const [saved, setSaved] = useState(false);
+  const [copiedShare, setCopiedShare] = useState(false);
+
+  const handleShare = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const productUrl = `${window.location.origin}/?product=${encodeURIComponent(product.id || product.title)}`;
+    const shareData = {
+      title: product.title,
+      text: `Check out this unique ${product.title} phone case on Framecase for just ${product.price}!`,
+      url: productUrl,
+    };
+
+    if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+      try {
+        await navigator.share(shareData);
+        return;
+      } catch {
+        // Fallback to clipboard
+      }
+    }
+
+    if (navigator.clipboard) {
+      await navigator.clipboard.writeText(productUrl);
+      setCopiedShare(true);
+      setTimeout(() => setCopiedShare(false), 2000);
+    }
+  };
+
   return (
     <article className="product-card" style={{ animationDelay: `${Math.min(index, 8) * 45}ms` }}>
       <button type="button" className="product-image-wrap" onClick={() => onOpen(product)} aria-label={`View details for ${product.title}`}>
@@ -42,8 +69,21 @@ function ProductCard({ product, index, onOpen }: { product: CatalogProduct; inde
       </button>
       <div className="product-info">
         <div className="product-copy">
-          <p className="product-collection">{product.collectionName}</p>
-          <h3>{product.title}</h3>
+          <div className="product-header-row">
+            <p className="product-collection">{product.collectionName}</p>
+            <button
+              type="button"
+              className="product-share-btn"
+              onClick={handleShare}
+              aria-label={`Share ${product.title}`}
+              title={copiedShare ? 'Link copied!' : 'Share product'}
+            >
+              {copiedShare ? <Check size={14} className="text-green-600" /> : <Share2 size={14} />}
+            </button>
+          </div>
+          <div className="product-title-row">
+            <h3>{product.title}</h3>
+          </div>
           <p className="product-description">{product.description}</p>
           <div className="price-row">
             <strong>{product.price}</strong>
@@ -201,8 +241,39 @@ function ProductPage({ product, onBack, onAddToCart, onBuyNow }: {
           {product.imageUrl ? <img src={product.imageUrl} alt={product.title} /> : <div className="image-fallback"><Sparkles size={30} /><span>Framecase</span></div>}
         </div>
         <div className="product-page-details">
-          <p className="product-collection">{product.collectionName}</p>
-          <h1>{product.title}</h1>
+          <div className="product-page-title-row">
+            <div>
+              <p className="product-collection">{product.collectionName}</p>
+              <h1>{product.title}</h1>
+            </div>
+            <button
+              type="button"
+              className="product-detail-share-btn"
+              onClick={async () => {
+                const productUrl = `${window.location.origin}/?product=${encodeURIComponent(product.id || product.title)}`;
+                const shareData = {
+                  title: product.title,
+                  text: `Check out this unique ${product.title} phone case on Framecase for just ${product.price}!`,
+                  url: productUrl,
+                };
+                if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+                  try {
+                    await navigator.share(shareData);
+                    return;
+                  } catch {}
+                }
+                if (navigator.clipboard) {
+                  await navigator.clipboard.writeText(productUrl);
+                  alert('Product link copied to clipboard!');
+                }
+              }}
+              aria-label={`Share ${product.title}`}
+              title="Share product direct link"
+            >
+              <Share2 size={18} />
+              <span>Share</span>
+            </button>
+          </div>
           <div className="product-page-price"><strong>{product.price}</strong>{product.compareAtPrice && <span>{product.compareAtPrice}</span>}</div>
           <div className="product-page-description">
             {product.description.split('\n\n').filter(Boolean).map((para, i) => (
