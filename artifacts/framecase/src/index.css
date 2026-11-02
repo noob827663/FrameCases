@@ -63,6 +63,7 @@ a { color: inherit; text-decoration: none; }
   font-family: 'Good Timing', 'Manrope', sans-serif;
   font-style: italic;
   font-weight: 400;
+  color: #DDF17A;
 }
 .desktop-nav { display: flex; align-items: center; gap: clamp(14px, 2.4vw, 34px); margin-left: auto; margin-right: auto; }
 .desktop-nav button, .mobile-menu button { background: transparent; border: 0; color: var(--ink); font-size: 12px; font-weight: 700; padding: 4px 0; transition: color .2s ease; }
