@@ -426,12 +426,17 @@ function App() {
     }
   };
 
+  // Only scroll to top when switching between distinct full views (about, faq, blog, category)
   useEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-    document.documentElement.scrollTop = 0;
-    document.body.scrollTop = 0;
+    if (currentView !== 'catalog') {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    }
+  }, [currentView]);
 
-    // Dynamic SEO Title and Meta Description for Views
+  // Dynamic SEO Title and Meta Description
+  useEffect(() => {
     if (activeProduct) {
       document.title = `${activeProduct.title} — Luxury 9H Glass Phone Case (₹299) | Framecase`;
     } else if (currentView === 'category') {
@@ -492,7 +497,10 @@ function App() {
     setSelectedCollection(slug);
     setPage(1);
     setMobileMenuOpen(false);
-    window.setTimeout(() => document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+    // Smooth scroll directly to catalog without resetting page to full top
+    window.requestAnimationFrame(() => {
+      document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
   };
 
   const goToPage = (nextPage: number) => {
