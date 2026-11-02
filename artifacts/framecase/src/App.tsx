@@ -734,7 +734,7 @@ function App() {
       <header className="site-header">
         <a href="/" className="brand" aria-label="Framecase home">
           <span className="brand-mark">F</span>
-          <span className="brand-word">frame<span>case</span></span>
+          <span className="brand-word">Frame<span>Case</span></span>
         </a>
         <nav className="desktop-nav" aria-label="Primary navigation">
           {navCollections.slice(0, 4).map((item) => <button type="button" key={item.slug} onClick={() => openCategoryPage(item.slug)}>{item.label}</button>)}
