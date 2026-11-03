@@ -57,7 +57,10 @@ const collectionBySlug = new Map(collections.map((collection) => [collection.slu
 const sourceCache = new Map<string, { expiresAt: number; products: ReturnType<typeof normalizeProduct>[]; hasNextPage: boolean }>();
 const CACHE_TTL_MS = 5 * 60 * 1000;
 
-const toProductsJsonUrl = (url: string, page: number) => `${url.replace(/\/$/, "")}/products.json?limit=100&page=${page}`;
+const toProductsJsonUrl = (url: string, page: number, limit: number = 48) => {
+  const baseUrl = `${url.replace(/\/$/, "")}/products.json?limit=${limit}`;
+  return page > 1 ? `${baseUrl}&page=${page}` : baseUrl;
+};
 
 const normalizeTags = (tags: ShopifyProduct["tags"]) => {
   if (Array.isArray(tags)) return tags;
@@ -118,12 +121,12 @@ const normalizeProduct = (product: ShopifyProduct, collection: CollectionSource)
   };
 };
 
-async function fetchCollection(collection: CollectionSource, page: number) {
-  const cacheKey = `${collection.slug}:${page}`;
+async function fetchCollection(collection: CollectionSource, page: number, limit: number = 48) {
+  const cacheKey = `${collection.slug}:${page}:${limit}`;
   const cached = sourceCache.get(cacheKey);
   if (cached && cached.expiresAt > Date.now()) return cached;
 
-  const response = await fetch(toProductsJsonUrl(collection.url, page), {
+  const response = await fetch(toProductsJsonUrl(collection.url, page, limit), {
     headers: { Accept: "application/json", "User-Agent": "Framecase Catalog Sync/1.0" },
     signal: AbortSignal.timeout(15_000),
   });
@@ -135,7 +138,7 @@ async function fetchCollection(collection: CollectionSource, page: number) {
   const payload = (await response.json()) as ShopifyCollectionResponse;
   const products = (payload.products ?? []).map((product) => normalizeProduct(product, collection));
   const linkHeader = response.headers.get("link") ?? "";
-  const hasNextPage = /rel=["']next["']/.test(linkHeader) || products.length >= 100;
+  const hasNextPage = /rel=["']next["']/.test(linkHeader) || products.length >= limit;
   const result = { expiresAt: Date.now() + CACHE_TTL_MS, products, hasNextPage };
   sourceCache.set(cacheKey, result);
   return result;
@@ -254,10 +257,15 @@ router.get("/catalog", async (req, res) => {
   try {
     const normalizedSearch = search?.trim().toLowerCase();
 
-    // If searching across all collections, check both multiple pages of collections and live search
+    const isSingleCollection = Boolean(collection && collectionBySlug.has(collection));
+
+    // When viewing a specific collection directly without search, fetch requested page with `limit`
+    // Otherwise when searching or viewing all, fetch page 1-2 or current page with default limit
     const pagesToFetch = normalizedSearch && !collection ? [1, 2] : [page];
+    const fetchLimit = isSingleCollection && !normalizedSearch ? limit : 48;
+
     const results = await Promise.all(
-      sources.flatMap((source) => pagesToFetch.map((p) => fetchCollection(source, p)))
+      sources.flatMap((source) => pagesToFetch.map((p) => fetchCollection(source, p, fetchLimit)))
     );
 
     const collectionProducts = results.flatMap((result) => result.products);
@@ -312,10 +320,19 @@ router.get("/catalog", async (req, res) => {
       collectionCounts.set(product.collectionSlug, (collectionCounts.get(product.collectionSlug) ?? 0) + 1);
     });
 
-    // Pagination slicing
-    const startIndex = (page - 1) * limit;
-    const paginatedProducts = filtered.slice(startIndex, startIndex + limit);
-    const hasNextPage = filtered.length > startIndex + limit || results.some((result) => result.hasNextPage);
+    // Pagination slicing:
+    // If fetching a single collection directly without search, products already represent the requested page
+    let paginatedProducts: ReturnType<typeof normalizeProduct>[];
+    let hasNextPage: boolean;
+
+    if (isSingleCollection && !normalizedSearch) {
+      paginatedProducts = filtered.slice(0, limit);
+      hasNextPage = results.some((result) => result.hasNextPage) || filtered.length > limit;
+    } else {
+      const startIndex = (page - 1) * limit;
+      paginatedProducts = filtered.slice(startIndex, startIndex + limit);
+      hasNextPage = filtered.length > startIndex + limit || results.some((result) => result.hasNextPage);
+    }
 
     const response = GetCatalogResponse.parse({
       products: paginatedProducts,
