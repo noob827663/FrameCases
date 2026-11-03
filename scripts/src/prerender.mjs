@@ -25,7 +25,50 @@ function escapeHtml(str) {
     .replace(/'/g, '&#039;');
 }
 
+// Maps internal collection slug to actual PhoneVilla upstream URL
+const UPSTREAM_COLLECTION_MAP = {
+  'new-designs': 'new-arrivalss',
+  'new-arrivalss': 'new-arrivalss',
+  'best-sellers': 'best-sellers',
+  'aesthetic-collection': 'aesthetic-collection',
+  'cars-bikes-collection': 'cars-bikes-collection',
+  'sports-collection': 'sports-collection',
+  'art-collection': 'art-collection',
+  'zodiac-sign': 'zodiac-sign',
+  'mens-collection': 'mens-collection',
+  'girls-collection': 'girls-collection',
+  'cats-collection': 'cats-collection',
+  'evil-eye-nazar': 'evil-eye-nazar',
+};
+
 const CATEGORIES_DATA = {
+  'new-designs': {
+    slug: 'new-designs',
+    name: 'New Designs',
+    seoTitle: 'New Design Phone Cases — Unique & Attractive Covers (₹299) | Framecase',
+    tagline: 'Fresh drops straight from the design studio.',
+    description: 'Discover our newest phone case additions: limited-edition art drops, contemporary viral aesthetics, seasonal color palettes, street-style typography, and modern graphic statements freshly crafted for trendsetters.',
+    materialInfo: 'Built with our signature scratch-proof backplate and 360-degree shockproof silicon edges, these cases deliver pristine aesthetic brilliance and dependable all-day device defense.',
+    highlights: ['Freshly dropped unique designs', 'Precision camera lens cutout protection', 'Scratch-resistant glossy face', 'Uniform ₹299 final pricing']
+  },
+  'new-arrivalss': {
+    slug: 'new-arrivalss',
+    name: 'Newly Launched',
+    seoTitle: 'Newly Launched Phone Cases — Unique & Attractive Design Covers (₹299) | Framecase',
+    tagline: 'The latest drops crafted to transform your everyday carry.',
+    description: 'Explore the freshest catalog additions featuring bold graphics, pop-culture statements, vibrant illustrations, retro comic hero art, and clean typography designed to elevate your device instantly.',
+    materialInfo: 'Each case combines an optical protective surface with high-grade shock-absorbing TPU bumpers, ensuring your phone stays safe from daily drops and surface scuffs.',
+    highlights: ['Exclusive newly dropped artworks', 'High-contrast vibrant ink beneath protective finish', 'Full perimeter edge-to-edge wrap', 'Slim in-hand ergonomics']
+  },
+  'best-sellers': {
+    slug: 'best-sellers',
+    name: 'Top Selling Cases',
+    seoTitle: 'Best Selling Phone Cases — Unique & Attractive Design Covers (₹299) | Framecase',
+    tagline: 'The crowd favorites and community-rated top picks.',
+    description: 'These are the cases our community loves the most. From best-selling retro collages and Japanese typography to iconic celestial charts, supercar art, and sneaker illustrations, these proven crowd-pleasers are guaranteed to turn heads.',
+    materialInfo: 'Tested by thousands of happy smartphone users across India. The protective glass back resists scratches from keys and coins, while the resilient TPU silicon bumper cushions against unexpected tabletop drops.',
+    highlights: ['Over 10,000+ happy devices protected', 'Mirror-like high-clarity gloss back', 'Available for 100+ phone models', 'Unbeatable designer value at ₹299']
+  },
   'aesthetic-collection': {
     slug: 'aesthetic-collection',
     name: 'Aesthetic',
@@ -49,36 +92,9 @@ const CATEGORIES_DATA = {
     name: 'Sports & Football',
     seoTitle: 'Sports Phone Cases — Unique & Attractive Design Covers (₹299) | Framecase',
     tagline: 'Football legends, iconic kicks, jersey numbers, and championship energy.',
-    description: 'Discover phone cases featuring legendary football moments, iconic Cristiano Ronaldo (CR7) artwork, Messi tributes, retro sneakers, and dynamic athletic typography.',
-    materialInfo: 'Engineered for active use, featuring our scratch-resistant protective backplate and impact-resistant TPU silicon bumper for anti-slip grip.',
-    highlights: ['Football & CR7 athlete tributes', 'Retro sneaker kicks & boot artwork', 'Anti-slip textured silicon grip', 'Drop-cushioned corners at ₹299']
-  },
-  'new-designs': {
-    slug: 'new-designs',
-    name: 'New Designs',
-    seoTitle: 'New Design Phone Cases — Unique & Attractive Covers (₹299) | Framecase',
-    tagline: 'Fresh drops straight from the design studio.',
-    description: 'Discover our newest phone case additions: limited-edition art drops, contemporary viral aesthetics, seasonal color palettes, street-style typography, and modern graphic statements.',
-    materialInfo: 'Built with our signature scratch-proof backplate and 360-degree shockproof silicon edges for aesthetic brilliance and dependable device defense.',
-    highlights: ['Freshly dropped unique designs', 'Precision camera lens cutout protection', 'Scratch-resistant glossy face', 'Uniform ₹299 final pricing']
-  },
-  'new-arrivalss': {
-    slug: 'new-arrivalss',
-    name: 'Newly Launched',
-    seoTitle: 'Newly Launched Phone Cases — Unique & Attractive Design Covers (₹299) | Framecase',
-    tagline: 'The latest drops crafted to transform your everyday carry.',
-    description: 'Explore the freshest catalog additions featuring bold graphics, pop-culture statements, vibrant illustrations, retro comic hero art, and clean typography.',
-    materialInfo: 'Each case combines an optical protective surface with high-grade shock-absorbing TPU bumpers for complete perimeter defense.',
-    highlights: ['Exclusive newly dropped artworks', 'High-contrast vibrant ink beneath protective finish', 'Full perimeter edge-to-edge wrap', 'Slim in-hand ergonomics']
-  },
-  'best-sellers': {
-    slug: 'best-sellers',
-    name: 'Top Selling Cases',
-    seoTitle: 'Best Selling Phone Cases — Unique & Attractive Design Covers (₹299) | Framecase',
-    tagline: 'The crowd favorites and community-rated top picks.',
-    description: 'These are the cases our community loves the most. From best-selling retro collages and Japanese typography to celestial charts, supercar art, and sneaker illustrations.',
-    materialInfo: 'Tested by thousands of happy smartphone users across India. The protective glass back resists scratches, while the resilient TPU bumper cushions drops.',
-    highlights: ['Over 10,000+ happy devices protected', 'Mirror-like high-clarity gloss back', 'Available for 100+ phone models', 'Unbeatable designer value at ₹299']
+    description: 'Our Sports Phone Cases collection is packed with designs made for true sports fans. Discover phone cases featuring legendary football moments, iconic Cristiano Ronaldo (CR7) celebration artwork, Messi tributes, retro basketball sneakers, football boots, stadium silhouettes, and dynamic athletic typography printed crisp and vibrant.',
+    materialInfo: 'Engineered for active use, each sports case features our signature scratch-resistant protective backplate. Bold jersey colors, stadium lights, and sneaker graphics stay bright and reflective forever without peeling. The impact-resistant TPU silicon bumper gives you a confident anti-slip grip during workouts and game days.',
+    highlights: ['Iconic football, Ronaldo (CR7) & athlete tributes', 'Retro sneaker kicks and boot artwork', 'Anti-slip textured silicon grip with glossy protective back', 'Drop-cushioned corners & ₹299 pricing']
   },
   'art-collection': {
     slug: 'art-collection',
@@ -103,7 +119,7 @@ const CATEGORIES_DATA = {
     name: "Men's Edit",
     seoTitle: "Men's Phone Cases — Unique & Attractive Design Covers (₹299) | Framecase",
     tagline: 'Bold, structured, and modern designs for everyday gentlemen.',
-    description: 'A curated selection of masculine aesthetics: brushed dark metallics, supercar blueprints, carbon fiber weaves, bold monochrome typography, and stealth geometric patterns.',
+    description: 'A curated selection of masculine aesthetics: brushed dark metallics, supercar blueprints, carbon fiber weaves, bold monochrome typography, athletic streetwear icons, and stealth geometric patterns.',
     materialInfo: 'Combining sleek industrial design with rugged drop safety, the protective back provides a tactile luxury feel with 360-degree corner security.',
     highlights: ['Carbon fiber weaves & supercar blueprints', 'Slim pocket-friendly profile', 'Precision responsive button covers', 'Resilient protective surface']
   },
@@ -222,15 +238,23 @@ function renderFooter() {
 
 function injectMetadata(html, { title, description, canonicalUrl, ogType = 'website', ogImage, jsonLd, bodyContent }) {
   let res = html;
-  res = res.replace(/<title>[\s\S]*?<\/title>/i, `<title>${escapeHtml(title)}</title>`);
-  res = res.replace(/<meta name="description" content="[^"]*"/i, `<meta name="description" content="${escapeHtml(description)}"`);
-  res = res.replace(/<link rel="canonical" href="[^"]*"/i, `<link rel="canonical" href="${escapeHtml(canonicalUrl)}"`);
-  res = res.replace(/<meta property="og:title" content="[^"]*"/i, `<meta property="og:title" content="${escapeHtml(title)}"`);
-  res = res.replace(/<meta property="og:description" content="[^"]*"/i, `<meta property="og:description" content="${escapeHtml(description)}"`);
-  res = res.replace(/<meta property="og:url" content="[^"]*"/i, `<meta property="og:url" content="${escapeHtml(canonicalUrl)}"`);
-  res = res.replace(/<meta property="og:type" content="[^"]*"/i, `<meta property="og:type" content="${escapeHtml(ogType)}"`);
-  res = res.replace(/<meta name="twitter:title" content="[^"]*"/i, `<meta name="twitter:title" content="${escapeHtml(title)}"`);
-  res = res.replace(/<meta name="twitter:description" content="[^"]*"/i, `<meta name="twitter:description" content="${escapeHtml(description)}"`);
+  if (title) {
+    res = res.replace(/<title>[\s\S]*?<\/title>/i, `<title>${escapeHtml(title)}</title>`);
+    res = res.replace(/<meta property="og:title" content="[^"]*"/i, `<meta property="og:title" content="${escapeHtml(title)}"`);
+    res = res.replace(/<meta name="twitter:title" content="[^"]*"/i, `<meta name="twitter:title" content="${escapeHtml(title)}"`);
+  }
+  if (description) {
+    res = res.replace(/<meta name="description" content="[^"]*"/i, `<meta name="description" content="${escapeHtml(description)}"`);
+    res = res.replace(/<meta property="og:description" content="[^"]*"/i, `<meta property="og:description" content="${escapeHtml(description)}"`);
+    res = res.replace(/<meta name="twitter:description" content="[^"]*"/i, `<meta name="twitter:description" content="${escapeHtml(description)}"`);
+  }
+  if (canonicalUrl) {
+    res = res.replace(/<link rel="canonical" href="[^"]*"/i, `<link rel="canonical" href="${escapeHtml(canonicalUrl)}"`);
+    res = res.replace(/<meta property="og:url" content="[^"]*"/i, `<meta property="og:url" content="${escapeHtml(canonicalUrl)}"`);
+  }
+  if (ogType) {
+    res = res.replace(/<meta property="og:type" content="[^"]*"/i, `<meta property="og:type" content="${escapeHtml(ogType)}"`);
+  }
 
   if (ogImage) {
     const safeImg = escapeHtml(ogImage);
@@ -253,7 +277,8 @@ function injectMetadata(html, { title, description, canonicalUrl, ogType = 'webs
 
 async function fetchCollectionProducts(colSlug) {
   try {
-    const url = `https://phonevilla.in/collections/${colSlug}/products.json?limit=100`;
+    const upstreamSlug = UPSTREAM_COLLECTION_MAP[colSlug] || colSlug;
+    const url = `https://phonevilla.in/collections/${upstreamSlug}/products.json?limit=100`;
     const res = await fetch(url, { headers: { 'User-Agent': 'Framecase/1.0', Accept: 'application/json' } });
     if (!res.ok) return [];
     const data = await res.json();
@@ -393,6 +418,7 @@ async function run() {
   // 2. Category Collections
   const allCollectionSlugs = Object.keys(CATEGORIES_DATA);
   const allUniqueProducts = new Map();
+  let firstCollectionProducts = [];
 
   for (const slug of allCollectionSlugs) {
     sitemapUrls.push({
@@ -403,6 +429,10 @@ async function run() {
 
     const meta = CATEGORIES_DATA[slug];
     const rawProds = await fetchCollectionProducts(slug);
+
+    if (slug === 'best-sellers' || (firstCollectionProducts.length === 0 && rawProds.length > 0)) {
+      firstCollectionProducts = rawProds;
+    }
 
     // Save actual products
     for (const p of rawProds) {
@@ -498,7 +528,163 @@ async function run() {
     console.log(`Generated category page: /${slug} (${rawProds.length} products)`);
   }
 
-  // 3. Products Prerendering
+  // 3. Homepage Prerendering (/) -> dist/public/index.html
+  console.log('--- Generating Homepage (/) Prerender ---');
+  const homeProds = firstCollectionProducts.slice(0, 48);
+  const homeProductCardsHtml = homeProds.map((p) => {
+    const img = p.images?.[0]?.src || '';
+    return `
+      <div class="product-card">
+        <a href="/products/${encodeURIComponent(p.handle)}" class="product-card-link">
+          <div class="product-media">
+            ${img ? `<img src="${escapeHtml(img)}" alt="${escapeHtml(p.title)}" loading="lazy" />` : '<div class="image-fallback">Framecase</div>'}
+          </div>
+          <div class="product-info">
+            <h3>${escapeHtml(p.title)}</h3>
+            <p class="product-description">Curated Design</p>
+            <div class="product-price"><strong>₹299</strong></div>
+          </div>
+        </a>
+      </div>
+    `;
+  }).join('\n');
+
+  const homeNewlyLaunchedHtml = homeProds.slice(0, 20).map((p) => {
+    const img = p.images?.[0]?.src || '';
+    return `
+      <a href="/products/${encodeURIComponent(p.handle)}" class="newly-launched-card">
+        <div class="newly-launched-card-image">
+          ${img ? `<img src="${escapeHtml(img)}" alt="${escapeHtml(p.title)}" loading="lazy" />` : ''}
+        </div>
+        <div class="newly-launched-card-info">
+          <h4>${escapeHtml(p.title)}</h4>
+          <span class="newly-launched-card-price">₹299</span>
+        </div>
+      </a>
+    `;
+  }).join('\n');
+
+  const homeContent = `
+    <section class="hero">
+      <div class="hero-backdrop hero-backdrop-one"></div>
+      <div class="hero-backdrop hero-backdrop-two"></div>
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="eyebrow-dot"></span> Curated for your frame</p>
+        <h1>Make it<br /><em>yours.</em></h1>
+        <p class="hero-description">Cases with a point of view. Discover designs that bring a little more personality to the everyday.</p>
+        <a href="#catalog" class="primary-button">Explore the collection →</a>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <div class="phone phone-one"><div class="camera camera-left"></div><div class="phone-case-art art-check"></div></div>
+        <div class="phone phone-two"><div class="camera camera-right"></div><div class="phone-case-art art-sun"></div></div>
+        <div class="hero-sticker">YOUR<br /><span>EVERYDAY</span><br />ESSENTIAL</div>
+      </div>
+      <div class="hero-footnote"><span>01</span><span class="hero-line"></span><span>Explore your next favourite</span></div>
+    </section>
+
+    <section class="value-strip" aria-label="Framecase benefits">
+      <div><span>🛡️ Made to protect</span></div>
+      <div><span>✨ Designs for every mood</span></div>
+      <div><span>🚚 Ships across India</span></div>
+    </section>
+
+    <section class="collection-section">
+      <div class="section-heading">
+        <div><p class="eyebrow">Find your frame</p><h2>Shop by mood</h2></div>
+        <a href="#catalog" class="text-button">View all collections →</a>
+      </div>
+      <div class="collection-chips">
+        ${navCollections.map(c => `<a href="/${c.slug}" class="collection-chip">${escapeHtml(c.label)}</a>`).join('\n')}
+      </div>
+    </section>
+
+    <section class="catalog-section" id="catalog">
+      <div class="catalog-toolbar">
+        <div><p class="eyebrow">The edit</p><h2>All designs</h2><p class="result-count">Curated designs available</p></div>
+      </div>
+      <div class="product-grid">
+        ${homeProductCardsHtml}
+      </div>
+
+      <div class="newly-launched-section">
+        <div class="newly-launched-header">
+          <div><p class="eyebrow">Fresh drops</p><h3 class="newly-launched-title">Newly launched</h3></div>
+          <a href="/new-designs" class="text-button">View all newly launched →</a>
+        </div>
+        <div class="newly-launched-scroll-container">
+          ${homeNewlyLaunchedHtml}
+        </div>
+      </div>
+    </section>
+
+    <section class="material-section" aria-labelledby="glass-case-guide">
+      <div class="material-intro">
+        <p class="eyebrow">The Framecase standard</p>
+        <h2 id="glass-case-guide">Made beautiful.<br /><em>Made to protect.</em></h2>
+      </div>
+      <div class="material-copy">
+        <p class="material-lead">Every Framecase design is made as a glossy glass case, so the art stays crisp while your phone gets everyday protection.</p>
+        <div class="material-points">
+          <div><span>01</span><div><strong>Glossy glass back</strong><p>Our designs are printed onto a high-quality 9H glass back. Clean, polished finish.</p></div></div>
+          <div><span>02</span><div><strong>Silicon sides</strong><p>Flexible TPU silicon sides make the case comfortable to hold and cover the phone edge to edge.</p></div></div>
+          <div><span>03</span><div><strong>Glass + plastic construction</strong><p>Slim and protective for daily use with drop cushioning.</p></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="seo-content-section" aria-labelledby="seo-collection-overview">
+      <div class="seo-content-container">
+        <div class="seo-content-header">
+          <p className="eyebrow">India's Designer Phone Case Destination</p>
+          <h2 id="seo-collection-overview">Unique &amp; Attractive Design Phone Cases &amp; Covers at ₹299</h2>
+          <p class="seo-content-intro">
+            Elevate your smartphone with curated designer phone cases crafted for visual elegance and everyday drop defense. Whether you're looking for aesthetic covers, bold pop-culture art, or sleek minimalism, Framecase brings high-definition glossy glass protection to your fingertips at an honest price.
+          </p>
+        </div>
+        <div class="seo-benefits-grid">
+          <div class="seo-benefit-card">
+            <h3>Curated Unique Designs</h3>
+            <p>Explore hundreds of fresh, attractive phone case designs spanning anime, automotive, retro typography, and nature-inspired motifs.</p>
+            <a href="/new-designs" class="seo-cta-link">Browse All Designs →</a>
+          </div>
+          <div class="seo-benefit-card">
+            <h3>Shockproof Drop Protection</h3>
+            <p>Built with shock-absorbing TPU silicone bumpers and scratch-resistant gloss backplates for effortless daily durability.</p>
+            <a href="/about" class="seo-cta-link">Our Quality &amp; Materials →</a>
+          </div>
+          <div class="seo-benefit-card">
+            <h3>100+ Compatible Devices</h3>
+            <p>Precision-cut cases available for Apple iPhone, Samsung Galaxy, OnePlus, Vivo, Oppo, and Realme at uniform ₹299 pricing.</p>
+            <a href="#catalog" class="seo-cta-link">Find Your Model →</a>
+          </div>
+        </div>
+        <div class="seo-conversion-bar">
+          <div class="seo-conversion-text">
+            <strong>Ready to upgrade your daily carry?</strong>
+            <span>Over 100+ phone models supported · ₹299 flat pricing · Complimentary shipping over ₹999</span>
+          </div>
+          <a href="#catalog" class="primary-button">Shop Unique Phone Covers →</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="statement-section">
+      <div class="statement-label"><span>Framecase</span><span>Since 2026</span></div>
+      <h2>Your phone<br /><em>has a frame.</em></h2>
+      <a href="#catalog" class="statement-link">Find yours →</a>
+    </section>
+  `;
+
+  const renderedHomepage = injectMetadata(templateHtml, {
+    title: 'Framecase - Stylish Unique Design Phone Cases for All',
+    description: 'Shop unique design phone cases in India! Attractive, stylish covers for top brands at ₹299. Explore now!',
+    canonicalUrl: 'https://framecase.in/',
+    bodyContent: homeContent
+  });
+  fs.writeFileSync(templateHtmlPath, renderedHomepage);
+  console.log('Generated homepage prerender in dist/public/index.html (with full visible content, SEO, and structured data)');
+
+  // 4. Products Prerendering
   console.log(`--- Prerendering ${allUniqueProducts.size} Unique Available Products ---`);
   let prodCount = 0;
   for (const [handle, product] of allUniqueProducts.entries()) {
@@ -579,7 +765,7 @@ async function run() {
   }
   console.log(`Generated ${prodCount} product pages under dist/public/products/:handle/index.html`);
 
-  // 4. Update Sitemap.xml
+  // 5. Update Sitemap.xml
   const sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${sitemapUrls.map(u => `  <url>
