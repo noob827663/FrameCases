@@ -547,7 +547,7 @@ function App() {
       const meta = getCategoryMeta(selectedCollection, currentLabel);
       document.title = meta.seoTitle;
     } else {
-      document.title = 'Framecase — Unique & Attractive Design Phone Cases, Covers (₹299) | iPhone, Samsung, OnePlus';
+      document.title = 'Unique & Attractive Design Phone Cases & Covers (₹299) | Framecase India';
     }
 
     // Maintain consistent canonical favicon references across client-side view changes
@@ -1176,6 +1176,70 @@ function App() {
               <div><span>01</span><div><strong>Glossy glass back</strong><p>Our designs are printed onto a high-quality 9H glass back. No loose glitter, no faux marble — just a clean, polished finish.</p></div></div>
               <div><span>02</span><div><strong>Silicon sides</strong><p>Flexible TPU silicon sides make the case comfortable to hold and help cover the phone from edge to edge.</p></div></div>
               <div><span>03</span><div><strong>Glass + plastic construction</strong><p>The combination is slim and protective for daily use. Because the back is glass, a heavy drop can still cause it to shatter.</p></div></div>
+            </div>
+          </div>
+        </section>
+
+        <section className="seo-content-section" aria-labelledby="seo-collection-overview">
+          <div className="seo-content-container">
+            <div className="seo-content-header">
+              <p className="eyebrow">India's Designer Phone Case Destination</p>
+              <h2 id="seo-collection-overview">Unique & Attractive Design Phone Cases & Covers at ₹299</h2>
+              <p className="seo-content-intro">
+                Elevate your smartphone with curated designer phone cases crafted for visual elegance and everyday drop defense. Whether you're looking for aesthetic covers, bold pop-culture art, or sleek minimalism, Framecase brings high-definition glossy glass protection to your fingertips at an honest price.
+              </p>
+            </div>
+
+            <div className="seo-benefits-grid">
+              <div className="seo-benefit-card">
+                <h3>Curated Unique Designs</h3>
+                <p>
+                  Explore hundreds of fresh, attractive phone case designs spanning anime, automotive, retro typography, and nature-inspired motifs. Each case transforms your device into an eye-catching statement piece.
+                </p>
+                <button type="button" className="seo-cta-link" onClick={() => selectCollection()}>
+                  Browse All Designs <ArrowUpRight size={14} />
+                </button>
+              </div>
+
+              <div className="seo-benefit-card">
+                <h3>Shockproof Drop Protection</h3>
+                <p>
+                  Built with shock-absorbing TPU silicone bumpers and scratch-resistant gloss backplates. Enjoy reinforced camera bezels and tactile button response for effortless daily durability.
+                </p>
+                <button type="button" className="seo-cta-link" onClick={() => navigateToView('about')}>
+                  Our Quality & Materials <ArrowUpRight size={14} />
+                </button>
+              </div>
+
+              <div className="seo-benefit-card">
+                <h3>100+ Compatible Devices</h3>
+                <p>
+                  Precision-cut cases available for Apple iPhone, Samsung Galaxy, OnePlus, Vivo, Oppo, and Realme. Every model is priced uniformly at ₹299 with fast nationwide delivery.
+                </p>
+                <button type="button" className="seo-cta-link" onClick={() => {
+                  document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth' });
+                }}>
+                  Find Your Model <ArrowUpRight size={14} />
+                </button>
+              </div>
+            </div>
+
+            <div className="seo-conversion-bar">
+              <div className="seo-conversion-text">
+                <strong>Ready to upgrade your daily carry?</strong>
+                <span>Over 100+ phone models supported · ₹299 flat pricing · Complimentary shipping over ₹999</span>
+              </div>
+              <button
+                type="button"
+                className="primary-button"
+                onClick={() => {
+                  setSelectedCollection(undefined);
+                  setSearch('');
+                  document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth' });
+                }}
+              >
+                Shop Unique Phone Covers <ArrowUpRight size={16} />
+              </button>
             </div>
           </div>
         </section>
