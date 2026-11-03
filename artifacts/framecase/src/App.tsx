@@ -594,6 +594,20 @@ function App() {
   useEffect(() => {
     const handlePopState = () => {
       const pathname = window.location.pathname.replace(/^\/|\/$/g, '');
+      if (pathname.startsWith('products/')) {
+        const handle = pathname.replace('products/', '').trim().toLowerCase();
+        fetch(`/api/products/${encodeURIComponent(handle)}`)
+          .then((res) => (res.ok ? res.json() : null))
+          .then((productData) => {
+            if (productData) {
+              openProduct(productData, false);
+            }
+          })
+          .catch(() => {});
+        return;
+      }
+
+      setActiveProduct(null);
       if (!pathname) {
         setCurrentView('catalog');
         setSelectedCollection(undefined);
