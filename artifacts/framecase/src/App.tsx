@@ -423,7 +423,6 @@ function CollectionChip({ label, slug, active, onSelect }: { label: string; slug
 }
 
 function App() {
-  const [selectedCollection, setSelectedCollection] = useState<string | undefined>();
   const [search, setSearch] = useState('');
   const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -456,6 +455,7 @@ function App() {
   };
 
   const initialRoute = useMemo(() => getInitialRouting(), []);
+  const [selectedCollection, setSelectedCollection] = useState<string | undefined>(initialRoute.slug);
   const [currentView, setCurrentView] = useState<'catalog' | 'about' | 'faq' | 'blog' | 'category'>(initialRoute.view);
   const [categoryViewSlug, setCategoryViewSlug] = useState<string | undefined>(initialRoute.slug);
   const scrollPositionRef = useRef<number>(0);
@@ -548,6 +548,29 @@ function App() {
       document.title = meta.seoTitle;
     } else {
       document.title = 'Framecase - Stylish Unique Design Phone Cases for All';
+    }
+
+    // Maintain consistent canonical tag and Open Graph URL across client-side navigation
+    let currentCanonical = 'https://framecase.in/';
+    if (activeProduct) {
+      currentCanonical = `https://framecase.in/products/${encodeURIComponent(activeProduct.id || activeProduct.title)}`;
+    } else if (currentView === 'category' && categoryViewSlug) {
+      currentCanonical = `https://framecase.in/${categoryViewSlug}`;
+    } else if (currentView === 'about' || currentView === 'faq' || currentView === 'blog') {
+      currentCanonical = `https://framecase.in/${currentView}`;
+    }
+
+    let canonicalEl = document.querySelector<HTMLLinkElement>("link[rel='canonical']");
+    if (!canonicalEl) {
+      canonicalEl = document.createElement('link');
+      canonicalEl.rel = 'canonical';
+      document.head.appendChild(canonicalEl);
+    }
+    canonicalEl.href = currentCanonical;
+
+    let ogUrlEl = document.querySelector<HTMLMetaElement>("meta[property='og:url']");
+    if (ogUrlEl) {
+      ogUrlEl.content = currentCanonical;
     }
 
     // Maintain consistent canonical favicon references across client-side view changes
