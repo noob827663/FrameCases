@@ -57,7 +57,15 @@ const collectionBySlug = new Map(collections.map((collection) => [collection.slu
 const sourceCache = new Map<string, { expiresAt: number; products: ReturnType<typeof normalizeProduct>[]; hasNextPage: boolean }>();
 const CACHE_TTL_MS = 5 * 60 * 1000;
 
-const toProductsJsonUrl = (url: string, page: number) => `${url.replace(/\/$/, "")}/products.json?limit=100&page=${page}`;
+const toProductsJsonUrl = (url: string, page: number) => {
+  const cleanUrl = url.replace(/\/$/, "");
+  // Upstream Shopify returns page 1 by default without page parameter.
+  // Start explicit pagination parameter with 2 (e.g. ?page=2) for subsequent pages.
+  if (page <= 1) {
+    return `${cleanUrl}/products.json?limit=100`;
+  }
+  return `${cleanUrl}/products.json?limit=100&page=${page}`;
+};
 
 const normalizeTags = (tags: ShopifyProduct["tags"]) => {
   if (Array.isArray(tags)) return tags;
@@ -312,10 +320,10 @@ router.get("/catalog", async (req, res) => {
       collectionCounts.set(product.collectionSlug, (collectionCounts.get(product.collectionSlug) ?? 0) + 1);
     });
 
-    // Pagination slicing
-    const startIndex = (page - 1) * limit;
-    const paginatedProducts = filtered.slice(startIndex, startIndex + limit);
-    const hasNextPage = filtered.length > startIndex + limit || results.some((result) => result.hasNextPage);
+    // When a specific page is fetched from upstream, `filtered` contains the products of that page.
+    // Return products up to `limit` for that page without skipping products already segmented by upstream.
+    const paginatedProducts = filtered.slice(0, limit);
+    const hasNextPage = results.some((result) => result.hasNextPage) || filtered.length > limit;
 
     const response = GetCatalogResponse.parse({
       products: paginatedProducts,
