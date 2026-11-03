@@ -58,7 +58,9 @@ if (fs.existsSync(clientDistPath)) {
   }
 
   // Static assets serving: ensure HTML and favicon files use no-cache, while hashed JS/CSS keep default caching
+  // redirect: false prevents 301 trailing-slash redirects that break client clean-path URLs
   app.use(express.static(clientDistPath, {
+    redirect: false,
     setHeaders: (res, filePath) => {
       if (filePath.includes("favicon") || filePath.endsWith(".html") || filePath.endsWith("index.html")) {
         setHtmlAndFaviconCacheHeaders(res);
@@ -100,10 +102,25 @@ if (fs.existsSync(clientDistPath)) {
     // Always ensure HTML document responses never cache stale contents or favicons
     setHtmlAndFaviconCacheHeaders(res);
 
+    const cleanPath = req.path.replace(/^\/|\/$/g, "");
+
+    // 0. Check for existing static pre-rendered HTML file first (SSG)
+    if (cleanPath) {
+      const directHtmlPath = path.join(clientDistPath, `${cleanPath}.html`);
+      const nestedHtmlPath = path.join(clientDistPath, cleanPath, "index.html");
+
+      if (fs.existsSync(nestedHtmlPath)) {
+        res.sendFile(nestedHtmlPath);
+        return;
+      }
+      if (fs.existsSync(directHtmlPath)) {
+        res.sendFile(directHtmlPath);
+        return;
+      }
+    }
+
     const indexPath = path.join(clientDistPath, "index.html");
     const rawProduct = (req.query.product as string) || (req.path.startsWith("/products/") ? req.path.replace("/products/", "") : "");
-
-    const cleanPath = req.path.replace(/^\/|\/$/g, "");
 
     // 1. Product SSR SEO injection
     if (rawProduct) {
