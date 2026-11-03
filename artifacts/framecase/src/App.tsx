@@ -760,10 +760,45 @@ function App() {
           <span className="brand-word">Frame<span>Case</span></span>
         </a>
         <nav className="desktop-nav" aria-label="Primary navigation">
-          {navCollections.slice(0, 4).map((item) => <button type="button" key={item.slug} onClick={() => openCategoryPage(item.slug)}>{item.label}</button>)}
-          <button type="button" onClick={() => navigateToView('blog')}>Blog</button>
-          <button type="button" onClick={() => navigateToView('about')}>About</button>
-          <button type="button" onClick={() => navigateToView('faq')}>FAQs</button>
+          {navCollections.slice(0, 4).map((item) => (
+            <a
+              key={item.slug}
+              href={`/${item.slug}`}
+              onClick={(e) => {
+                e.preventDefault();
+                openCategoryPage(item.slug);
+              }}
+            >
+              {item.label}
+            </a>
+          ))}
+          <a
+            href="/blog"
+            onClick={(e) => {
+              e.preventDefault();
+              navigateToView('blog');
+            }}
+          >
+            Blog
+          </a>
+          <a
+            href="/about"
+            onClick={(e) => {
+              e.preventDefault();
+              navigateToView('about');
+            }}
+          >
+            About
+          </a>
+          <a
+            href="/faq"
+            onClick={(e) => {
+              e.preventDefault();
+              navigateToView('faq');
+            }}
+          >
+            FAQs
+          </a>
           <button type="button" onClick={() => selectCollection()}>Shop all</button>
         </nav>
         <div className="header-actions">
@@ -773,42 +808,54 @@ function App() {
         </div>
       </header>
       {mobileMenuOpen && (
-        <div className="mobile-menu" role="menu">
+        <nav className="mobile-menu" role="menu" aria-label="Mobile navigation">
           {navCollections.map((item) => (
-            <button
-              type="button"
+            <a
               key={item.slug}
+              href={`/${item.slug}`}
               role="menuitem"
-              onClick={() => openCategoryPage(item.slug)}
+              onClick={(e) => {
+                e.preventDefault();
+                openCategoryPage(item.slug);
+              }}
             >
               <span>{item.label}</span>
               <ChevronRight size={17} />
-            </button>
+            </a>
           ))}
-          <button
-            type="button"
+          <a
+            href="/blog"
             role="menuitem"
-            onClick={() => navigateToView('blog')}
+            onClick={(e) => {
+              e.preventDefault();
+              navigateToView('blog');
+            }}
           >
             <span>Blog</span>
             <ChevronRight size={17} />
-          </button>
-          <button
-            type="button"
+          </a>
+          <a
+            href="/about"
             role="menuitem"
-            onClick={() => navigateToView('about')}
+            onClick={(e) => {
+              e.preventDefault();
+              navigateToView('about');
+            }}
           >
             <span>About Us</span>
             <ChevronRight size={17} />
-          </button>
-          <button
-            type="button"
+          </a>
+          <a
+            href="/faq"
             role="menuitem"
-            onClick={() => navigateToView('faq')}
+            onClick={(e) => {
+              e.preventDefault();
+              navigateToView('faq');
+            }}
           >
             <span>FAQs</span>
             <ChevronRight size={17} />
-          </button>
+          </a>
           <button
             type="button"
             role="menuitem"
@@ -817,7 +864,7 @@ function App() {
             <span>Shop all</span>
             <ChevronRight size={17} />
           </button>
-        </div>
+        </nav>
       )}
 
       <main>
