@@ -547,7 +547,7 @@ function App() {
       const meta = getCategoryMeta(selectedCollection, currentLabel);
       document.title = meta.seoTitle;
     } else {
-      document.title = 'Unique & Attractive Design Phone Cases & Covers (₹299) | Framecase India';
+      document.title = 'Framecase - Stylish Unique Design Phone Cases for All';
     }
 
     // Maintain consistent canonical favicon references across client-side view changes
