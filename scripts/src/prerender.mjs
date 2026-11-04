@@ -13,11 +13,22 @@ if (!fs.existsSync(templateHtmlPath)) {
   process.exit(1);
 }
 
-// Read and preserve pristine base template with empty <div id="root"></div>
-let rawTemplate = fs.readFileSync(templateHtmlPath, 'utf8');
-// If rawTemplate already contains pre-rendered contents inside root, reset it to clean shell
-rawTemplate = rawTemplate.replace(/<div id="root">[\s\S]*?<\/div>/i, '<div id="root"></div>');
-const baseTemplateHtml = rawTemplate;
+// Function to reliably retrieve a pristine base template containing an empty <div id="root"></div>.
+// Even if index.html was already modified or populated by a previous prerender run,
+// we cleanly slice out everything inside <div id="root">...</div> up to </body>.
+function getPristineTemplate() {
+  const raw = fs.readFileSync(templateHtmlPath, 'utf8');
+  const rootStart = raw.indexOf('<div id="root">');
+  const bodyEnd = raw.indexOf('</body>');
+  if (rootStart !== -1 && bodyEnd !== -1 && bodyEnd > rootStart) {
+    const beforeRoot = raw.slice(0, rootStart);
+    const afterBody = raw.slice(bodyEnd);
+    return `${beforeRoot}<div id="root"></div>\n  ${afterBody}`;
+  }
+  return raw;
+}
+
+const baseTemplateHtml = getPristineTemplate();
 
 function escapeHtml(str) {
   if (!str) return '';
@@ -122,7 +133,7 @@ const CATEGORIES_DATA = {
     name: "Men's Edit",
     seoTitle: "Men's Phone Cases — Unique & Attractive Design Covers (₹299) | Framecase",
     tagline: 'Bold, structured, and modern designs for everyday gentlemen.',
-    description: 'A curated selection of masculine aesthetics: brushed dark metallics, supercar blueprints, carbon fiber weaves, bold monochrome typography, athletic streetwear icons, and stealth geometric patterns.',
+    description: 'A curated selection of masculine aesthetics: brushed dark metallics, supercar blueprints, carbon fiber weaves, bold monochrome typography, and stealth geometric patterns.',
     materialInfo: 'Combining sleek industrial design with rugged drop safety, the protective back provides a tactile luxury feel with 360-degree corner security.',
     highlights: ['Carbon fiber weaves & supercar blueprints', 'Slim pocket-friendly profile', 'Precision responsive button covers', 'Resilient protective surface']
   },
@@ -163,8 +174,8 @@ const navCollections = [
   { label: 'Arts & scenery', slug: 'art-collection' },
   { label: 'Astrology', slug: 'zodiac-sign' },
   { label: 'Sports', slug: 'sports-collection' },
-  { label: "Men's collection", slug: "mens-collection" },
-  { label: "Women's collection", slug: "girls-collection" },
+  { label: "Men's collection", slug: 'mens-collection' },
+  { label: "Women's collection", slug: 'girls-collection' },
   { label: 'Cats collection', slug: 'cats-collection' },
   { label: 'Evil eye collection', slug: 'evil-eye-nazar' },
 ];
@@ -276,7 +287,9 @@ function injectMetadata(html, { title, description, canonicalUrl, ogType = 'webs
   }
 
   if (bodyContent) {
-    res = res.replace(/<div id="root">[\s\S]*?<\/div>/i, `<div id="root"><div class="site-shell">${renderHeaderNav()}<main>${bodyContent}</main>${renderFooter()}</div></div>`);
+    // Inject rendered application shell inside <div id="root">
+    const renderedAppShell = `<div id="root"><div class="site-shell">${renderHeaderNav()}<main>${bodyContent}</main>${renderFooter()}</div></div>`;
+    res = res.replace('<div id="root"></div>', renderedAppShell);
   }
 
   return res;
