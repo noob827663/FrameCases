@@ -136,7 +136,10 @@ if (fs.existsSync(clientDistPath)) {
 
           if (pRes.ok) {
             const data: any = await pRes.json();
-            const rawTitle = data.title ? `${data.title} — Unique & Attractive Design Case (₹299) | Framecase` : "Framecase";
+            const pTitleBase = data.title || "Curated Design Case";
+            const maxNameLen = 70 - " | Framecase".length; // 56
+            const trimmedTitle = pTitleBase.length > maxNameLen ? pTitleBase.slice(0, maxNameLen).trim() : pTitleBase;
+            const rawTitle = `${trimmedTitle} | Framecase`;
             const rawDesc = data.description ? data.description.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 160) : "Shop unique & attractive design phone cases at ₹299.";
             let img = data.images?.[0] || "";
             if (img.startsWith("//")) img = `https:${img}`;
@@ -187,7 +190,12 @@ if (fs.existsSync(clientDistPath)) {
         pageDesc = "Read in-depth articles and guides about phone case aesthetics, everyday drop protection, and styling your smartphone carry.";
       } else if (VALID_CATEGORY_SLUGS.has(cleanPath)) {
         const catName = cleanPath.replace(/-/g, " ");
-        pageTitle = `${catName.charAt(0).toUpperCase() + catName.slice(1)} Phone Cases — Unique & Attractive Covers (₹299) | Framecase`;
+        if (cleanPath === "cars-bikes-collection") {
+          pageTitle = "Cars & Bikes Phone Cases — Unique & Attractive Design Covers (₹299) | Framecase";
+        } else {
+          const formatted = `${catName.charAt(0).toUpperCase() + catName.slice(1)} Phone Cases — Unique Covers | Framecase`;
+          pageTitle = formatted.length > 70 ? `${catName.charAt(0).toUpperCase() + catName.slice(1)} Cases | Framecase` : formatted;
+        }
         pageDesc = `Shop ${catName} phone cases with unique, attractive designs for iPhone, Samsung, OnePlus and more at ₹299 with free shipping across India.`.slice(0, 160);
       }
 

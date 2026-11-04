@@ -549,7 +549,10 @@ function App() {
   useEffect(() => {
     let currentDesc = 'Shop unique design phone cases in India! Attractive, stylish covers for top brands at ₹299. Explore now!';
     if (activeProduct) {
-      document.title = `${activeProduct.title} — Unique & Attractive Design Case (₹299) | Framecase`;
+      const pName = activeProduct.title || 'Curated Design Case';
+      const maxNameLen = 70 - ' | Framecase'.length; // 56
+      const trimmedTitle = pName.length > maxNameLen ? pName.slice(0, maxNameLen).trim() : pName;
+      document.title = `${trimmedTitle} | Framecase`;
       currentDesc = `${activeProduct.title} phone case for iPhone, Samsung, OnePlus & more. Unique design, shockproof glass finish, all models available at ₹299.`.slice(0, 160);
     } else if (currentView === 'category') {
       const meta = getCategoryMeta(categoryViewSlug, currentLabel);
