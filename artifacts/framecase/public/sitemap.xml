@@ -21,6 +21,16 @@
     <priority>0.9</priority>
   </url>
   <url>
+    <loc>https://framecase.in/terms-of-service</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://framecase.in/privacy-policy</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://framecase.in/new-designs</loc>
     <changefreq>daily</changefreq>
     <priority>0.85</priority>
@@ -701,12 +711,12 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://framecase.in/products/whispers-of-wings-glass-case</loc>
+    <loc>https://framecase.in/products/cosmic-moon-glow-glass-case</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://framecase.in/products/cosmic-moon-glow-glass-case</loc>
+    <loc>https://framecase.in/products/whispers-of-wings-glass-case</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -981,12 +991,12 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://framecase.in/products/it-comes-in-waves-quote-glass-case</loc>
+    <loc>https://framecase.in/products/pooh-and-stitch-stitch-clear-silicon-cover-apple-iphone-15</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://framecase.in/products/pooh-and-stitch-stitch-clear-silicon-cover-apple-iphone-15</loc>
+    <loc>https://framecase.in/products/it-comes-in-waves-quote-glass-case</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -1041,12 +1051,12 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://framecase.in/products/cute-girl-in-blue-with-flowers-clear-silicon-cover-apple-iphone-15</loc>
+    <loc>https://framecase.in/products/doctor-doom-split-face-glass-case</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://framecase.in/products/doctor-doom-split-face-glass-case</loc>
+    <loc>https://framecase.in/products/cute-girl-in-blue-with-flowers-clear-silicon-cover-apple-iphone-15</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -1731,17 +1741,22 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://framecase.in/products/porsche-crimson-night-glass-case</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://framecase.in/products/bmw-adventure-storm-glass-case</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://framecase.in/products/porsche-emerald-911-glass-case</loc>
+    <loc>https://framecase.in/products/blossom-beauty-glass-case</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://framecase.in/products/porsche-crimson-night-glass-case</loc>
+    <loc>https://framecase.in/products/porsche-emerald-911-glass-case</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -1756,22 +1771,17 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://framecase.in/products/blossom-beauty-glass-case</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://framecase.in/products/thunder-curve-attack-glass-case</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://framecase.in/products/ferrari-carbon-racing-shield-glass-case</loc>
+    <loc>https://framecase.in/products/cloudline-cruiser-glass-case</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://framecase.in/products/cloudline-cruiser-glass-case</loc>
+    <loc>https://framecase.in/products/ferrari-carbon-racing-shield-glass-case</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -1966,6 +1976,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://framecase.in/products/charles-leclerc-ferrari-victory-glass-case</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://framecase.in/products/emerald-street-rider-glass-case</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -1992,11 +2007,6 @@
   </url>
   <url>
     <loc>https://framecase.in/products/porsche-crimson-shadow-glass-case</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://framecase.in/products/charles-leclerc-ferrari-victory-glass-case</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -2356,12 +2366,12 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://framecase.in/products/golden-stallion-moonride-glass-case</loc>
+    <loc>https://framecase.in/products/zoro-anime-character-glass-case</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://framecase.in/products/zoro-anime-character-glass-case</loc>
+    <loc>https://framecase.in/products/golden-stallion-moonride-glass-case</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -2616,12 +2626,12 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://framecase.in/products/titan-awakening-fury-glass-case</loc>
+    <loc>https://framecase.in/products/nine-tails-legacy-glass-case</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://framecase.in/products/nine-tails-legacy-glass-case</loc>
+    <loc>https://framecase.in/products/titan-awakening-fury-glass-case</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -2711,12 +2721,12 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://framecase.in/products/luffy-moonlit-freedom-glass-case</loc>
+    <loc>https://framecase.in/products/strawhat-chaos-panels-glass-case-for-iqoo-15r</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://framecase.in/products/blazing-sword-resolve-glass-case</loc>
+    <loc>https://framecase.in/products/luffy-moonlit-freedom-glass-case</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>

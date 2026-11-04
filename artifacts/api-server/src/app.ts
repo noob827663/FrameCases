@@ -188,6 +188,12 @@ if (fs.existsSync(clientDistPath)) {
       } else if (cleanPath === "blog") {
         pageTitle = "Framecase Journal — Unique & Attractive Phone Case Designs";
         pageDesc = "Read in-depth articles and guides about phone case aesthetics, everyday drop protection, and styling your smartphone carry.";
+      } else if (cleanPath === "terms-of-service" || cleanPath === "terms") {
+        pageTitle = "Terms of Service — Orders, Warranty & Policies | Framecase";
+        pageDesc = "Review Framecase terms of service: uniform ₹299 pricing, 48-hour replacement guarantee, 9H tempered glass specifications, and nationwide shipping in India.";
+      } else if (cleanPath === "privacy-policy" || cleanPath === "privacy") {
+        pageTitle = "Privacy Policy — Secure Orders & Data Protection | Framecase";
+        pageDesc = "Learn how Framecase safeguards your personal information, delivery details, and order communications with transparent and secure data practices.";
       } else if (VALID_CATEGORY_SLUGS.has(cleanPath)) {
         const catName = cleanPath.replace(/-/g, " ");
         if (cleanPath === "cars-bikes-collection") {

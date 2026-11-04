@@ -9,6 +9,8 @@ import { ErrorBoundary } from '@/components/error-boundary';
 import { AboutPage } from '@/pages/about';
 import { FaqPage } from '@/pages/faq';
 import { BlogPage } from '@/pages/blog';
+import { TermsPage } from '@/pages/terms';
+import { PrivacyPolicyPage } from '@/pages/privacy';
 import { getCategoryMeta } from '@/data/categories';
 
 const queryClient = new QueryClient();
@@ -451,12 +453,18 @@ function App() {
     if (pathname === 'about' || pathname === 'faq' || pathname === 'blog') {
       return { view: pathname as 'about' | 'faq' | 'blog', slug: undefined, productHandle: undefined };
     }
+    if (pathname === 'terms-of-service' || pathname === 'terms') {
+      return { view: 'terms' as const, slug: undefined, productHandle: undefined };
+    }
+    if (pathname === 'privacy-policy' || pathname === 'privacy') {
+      return { view: 'privacy' as const, slug: undefined, productHandle: undefined };
+    }
     return { view: 'category' as const, slug: pathname, productHandle: undefined };
   };
 
   const initialRoute = useMemo(() => getInitialRouting(), []);
   const [selectedCollection, setSelectedCollection] = useState<string | undefined>(initialRoute.slug);
-  const [currentView, setCurrentView] = useState<'catalog' | 'about' | 'faq' | 'blog' | 'category'>(initialRoute.view);
+  const [currentView, setCurrentView] = useState<'catalog' | 'about' | 'faq' | 'blog' | 'terms' | 'privacy' | 'category'>(initialRoute.view);
   const [categoryViewSlug, setCategoryViewSlug] = useState<string | undefined>(initialRoute.slug);
   const scrollPositionRef = useRef<number>(0);
   const initialDataForCollection = useMemo(() => {
@@ -523,7 +531,7 @@ function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  const navigateToView = (view: 'catalog' | 'about' | 'faq' | 'blog', pushHistory = true) => {
+  const navigateToView = (view: 'catalog' | 'about' | 'faq' | 'blog' | 'terms' | 'privacy', pushHistory = true) => {
     setCurrentView(view);
     setActiveProduct(null);
     setMobileMenuOpen(false);
@@ -531,7 +539,14 @@ function App() {
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
     if (pushHistory) {
-      const targetPath = view === 'catalog' ? '/' : `/${view}`;
+      const targetPath =
+        view === 'catalog'
+          ? '/'
+          : view === 'terms'
+          ? '/terms-of-service'
+          : view === 'privacy'
+          ? '/privacy-policy'
+          : `/${view}`;
       window.history.pushState({ view, slug: undefined }, '', targetPath);
     }
   };
@@ -567,6 +582,12 @@ function App() {
     } else if (currentView === 'blog') {
       document.title = 'Framecase Journal — Unique & Attractive Phone Case Designs';
       currentDesc = 'Read in-depth articles and guides about phone case aesthetics, everyday drop protection, and styling your smartphone carry.';
+    } else if (currentView === 'terms') {
+      document.title = 'Terms of Service — Orders, Warranty & Policies | Framecase';
+      currentDesc = 'Review Framecase terms of service: uniform ₹299 pricing, 48-hour replacement guarantee, 9H tempered glass specifications, and nationwide shipping in India.';
+    } else if (currentView === 'privacy') {
+      document.title = 'Privacy Policy — Secure Orders & Data Protection | Framecase';
+      currentDesc = 'Learn how Framecase safeguards your personal information, delivery details, and order communications with transparent and secure data practices.';
     } else if (selectedCollection) {
       const meta = getCategoryMeta(selectedCollection, currentLabel);
       document.title = meta.seoTitle;
@@ -596,6 +617,10 @@ function App() {
       currentCanonical = `https://framecase.in/${categoryViewSlug}`;
     } else if (currentView === 'about' || currentView === 'faq' || currentView === 'blog') {
       currentCanonical = `https://framecase.in/${currentView}`;
+    } else if (currentView === 'terms') {
+      currentCanonical = 'https://framecase.in/terms-of-service';
+    } else if (currentView === 'privacy') {
+      currentCanonical = 'https://framecase.in/privacy-policy';
     }
 
     let canonicalEl = document.querySelector<HTMLLinkElement>("link[rel='canonical']");
@@ -674,6 +699,10 @@ function App() {
         setSelectedCollection(undefined);
       } else if (pathname === 'about' || pathname === 'faq' || pathname === 'blog') {
         setCurrentView(pathname);
+      } else if (pathname === 'terms-of-service' || pathname === 'terms') {
+        setCurrentView('terms');
+      } else if (pathname === 'privacy-policy' || pathname === 'privacy') {
+        setCurrentView('privacy');
       } else {
         setCategoryViewSlug(pathname);
         setSelectedCollection(pathname);
@@ -1059,6 +1088,10 @@ function App() {
           <FaqPage onBack={() => navigateToView('catalog')} />
         ) : currentView === 'blog' ? (
           <BlogPage onBack={() => navigateToView('catalog')} onExploreDesigns={() => selectCollection()} />
+        ) : currentView === 'terms' ? (
+          <TermsPage onBack={() => navigateToView('catalog')} />
+        ) : currentView === 'privacy' ? (
+          <PrivacyPolicyPage onBack={() => navigateToView('catalog')} />
         ) : <>
         <section className="hero">
           <div className="hero-backdrop hero-backdrop-one" />
@@ -1394,6 +1427,27 @@ function App() {
               <a href="mailto:nkeepson@gmail.com" className="footer-contact-link">nkeepson@gmail.com</a>
             </div>
             <div>
+              <p>Legal & Policy</p>
+              <a
+                href="/terms-of-service"
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigateToView('terms');
+                }}
+              >
+                Terms of Service
+              </a>
+              <a
+                href="/privacy-policy"
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigateToView('privacy');
+                }}
+              >
+                Privacy Policy
+              </a>
+            </div>
+            <div>
               <p>Follow along</p>
               <a
                 href="https://www.instagram.com/framecase.in?srtk=YWYzZDk4a3N2bWVl&utm_source=qr"
@@ -1405,7 +1459,31 @@ function App() {
             </div>
           </div>
         </div>
-        <div className="footer-bottom"><span>© 2026 Framecase</span><span>Made for every device, every version of you.</span></div>
+        <div className="footer-bottom">
+          <span>© 2026 Framecase</span>
+          <div className="footer-legal-links">
+            <a
+              href="/terms-of-service"
+              onClick={(e) => {
+                e.preventDefault();
+                navigateToView('terms');
+              }}
+            >
+              Terms of Service
+            </a>
+            <span className="footer-separator">•</span>
+            <a
+              href="/privacy-policy"
+              onClick={(e) => {
+                e.preventDefault();
+                navigateToView('privacy');
+              }}
+            >
+              Privacy Policy
+            </a>
+          </div>
+          <span>Made for every device, every version of you.</span>
+        </div>
       </footer>
             {searchModalOpen && (
         <div

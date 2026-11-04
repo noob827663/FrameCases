@@ -249,6 +249,11 @@ function renderFooter() {
             <a href="mailto:nkeepson@gmail.com" class="footer-contact-link">nkeepson@gmail.com</a>
           </div>
           <div>
+            <p>Legal &amp; Policy</p>
+            <a href="/terms-of-service">Terms of Service</a>
+            <a href="/privacy-policy">Privacy Policy</a>
+          </div>
+          <div>
             <p>Follow along</p>
             <a href="https://www.instagram.com/framecase.in?srtk=YWYzZDk4a3N2bWVl&amp;utm_source=qr" target="_blank" rel="noreferrer">Instagram</a>
           </div>
@@ -256,6 +261,11 @@ function renderFooter() {
       </div>
       <div class="footer-bottom">
         <span>© 2026 Framecase</span>
+        <div class="footer-legal-links">
+          <a href="/terms-of-service">Terms of Service</a>
+          <span class="footer-separator">•</span>
+          <a href="/privacy-policy">Privacy Policy</a>
+        </div>
         <span>Made for every device, every version of you.</span>
       </div>
     </footer>
@@ -329,6 +339,8 @@ async function run() {
     { loc: 'https://framecase.in/about', changefreq: 'weekly', priority: '0.8' },
     { loc: 'https://framecase.in/faq', changefreq: 'weekly', priority: '0.8' },
     { loc: 'https://framecase.in/blog', changefreq: 'daily', priority: '0.9' },
+    { loc: 'https://framecase.in/terms-of-service', changefreq: 'monthly', priority: '0.7' },
+    { loc: 'https://framecase.in/privacy-policy', changefreq: 'monthly', priority: '0.7' },
   ];
 
   // 1. Static Pages
@@ -353,10 +365,43 @@ async function run() {
               <div class="about-card"><h3>Optical Glass &amp; Shock TPU</h3><p>Our cases combine a glossy 9H scratch-resistant glass face with flexible shockproof silicone edges for drop protection and rich color clarity.</p></div>
               <div class="about-card"><h3>Direct ₹299 Pricing</h3><p>By producing directly and skipping retail markups, we deliver luxury aesthetic cases uniformly priced at ₹299 across 100+ phone models.</p></div>
             </div>
-            <div class="material-highlight-box">
-              <h3>The Framecase Guarantee</h3>
-              <p>Every case is crafted to fit Apple iPhone, Samsung Galaxy, OnePlus, Vivo, Oppo, and Realme with precision cutouts for lenses, charging ports, and responsive button covers.</p>
-              <a href="/#catalog" class="primary-button">Explore the Collection →</a>
+            <div class="about-details-section">
+              <div class="about-details-block">
+                <h2>1. Why Choose FrameCase?</h2>
+                <p>We believe shopping for phone accessories should be simple, enjoyable and affordable. At FrameCase, we focus on bringing together designs that match different styles and preferences without making you spend too much.</p>
+                <p>What makes us different is our focus on offering carefully selected designs, affordable pricing and a convenient shopping experience.</p>
+                <p>Whether you are looking for something minimal, aesthetic, trendy or eye-catching, our collection is designed to give you more ways to express your personal style.</p>
+                <p>We want every customer to enjoy discovering new designs and finding something they genuinely love.</p>
+
+                <h2>2. Our Approach to Quality</h2>
+                <p>A good phone case should look great and serve its everyday purpose. That’s why we pay attention to product appearance, design details and compatibility when selecting products for our collection.</p>
+                <p>We aim to offer products that provide a balance between style, practicality and affordability.</p>
+                <p>We continuously look for new designs and improvements to make our collection more interesting and relevant to our customers.</p>
+
+                <h2>3. Designed Around Your Style</h2>
+                <p>Everyone has a different taste, and we believe your phone accessories should reflect that.</p>
+                <p>Some people prefer simple and minimal designs, while others love colourful patterns, creative graphics and bold styles.</p>
+                <p>At FrameCase, we aim to bring together different designs so you can choose something that matches your personality.</p>
+                <p>Because your phone is part of your everyday life, its style should be yours.</p>
+
+                <h2>4. Our Vision for the Future</h2>
+                <p>Our vision is to build FrameCase into a trusted and recognised mobile accessories brand, offering customers a wide variety of stylish products at affordable prices.</p>
+                <p>We want to continuously expand our collection, introduce new designs, improve our services and reach customers across India.</p>
+                <p>Every order, every suggestion and every bit of customer support helps us grow. We are excited about the journey ahead and look forward to bringing you more reasons to love your phone.</p>
+                <div style="margin-top:20px;padding:16px;background:var(--cream);border-radius:12px;">
+                  <strong>FrameCase – Style Your Phone, Your Way.</strong>
+                </div>
+              </div>
+              <div class="contact-box">
+                <h3>Contact &amp; Support</h3>
+                <p>Have questions about your phone model, order status, or design suggestions? We are here to help!</p>
+                <div class="contact-links">
+                  <div class="contact-item"><span>Goa, India</span></div>
+                  <a href="mailto:nkeepson@gmail.com" class="contact-item"><span>nkeepson@gmail.com</span></a>
+                  <a href="https://www.instagram.com/framecase.in?srtk=YWYzZDk4a3N2bWVl&amp;utm_source=qr" target="_blank" rel="noreferrer" class="contact-item"><span>@framecase.in on Instagram</span></a>
+                  <a href="https://framecase.in" class="contact-item"><span>www.framecase.in</span></a>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -418,6 +463,157 @@ async function run() {
                 <p>From motorsport aesthetic typography to tranquil nature landscapes, explore how phone cases have evolved into statement accessories.</p>
                 <a href="/#catalog" class="seo-cta-link">Explore Moods →</a>
               </article>
+            </div>
+          </div>
+        </div>
+      `
+    },
+    {
+      route: 'terms-of-service',
+      title: 'Terms of Service — Orders, Warranty & Policies | Framecase',
+      description: 'Review Framecase terms of service: terms governing access, purchases, products, compatibility, shipping, replacements, and customer responsibilities.',
+      canonicalUrl: 'https://framecase.in/terms-of-service',
+      content: `
+        <div class="content-page-shell">
+          <div class="content-page-header">
+            <a href="/" class="back-to-catalog">← Back to home</a>
+            <p class="eyebrow">Legal &amp; Agreements</p>
+            <h1 class="content-page-title">Terms of Service</h1>
+            <p class="content-page-subtitle">Please read these terms carefully before using our website. By visiting our website, browsing our products or placing an order, you agree to follow these Terms of Service.</p>
+          </div>
+          <div class="editorial-body">
+            <div class="about-grid">
+              <div class="about-card"><h3>Affordable &amp; Stylish Covers</h3><p>FrameCase offers stylish, trendy and affordable mobile phone cases and accessories with transparent pricing in Indian Rupees (INR).</p></div>
+              <div class="about-card"><h3>Exact Phone Compatibility</h3><p>Customers are responsible for selecting the correct phone model before checkout to ensure exact camera, button, and dimension fit.</p></div>
+              <div class="about-card"><h3>Customer Support &amp; Quality</h3><p>Damaged, defective or incorrect products are handled promptly through our dedicated support channels in accordance with our return guidelines.</p></div>
+            </div>
+            <div class="about-details-section">
+              <div class="about-details-block">
+                <h2>1. Introduction</h2>
+                <p>Welcome to FrameCase! These Terms of Service govern your access to and use of the FrameCase website, including all purchases, services and other activities carried out through our platform.</p>
+                <p>FrameCase is an online store offering stylish, trendy and affordable mobile phone cases and accessories. By visiting our website, browsing our products or placing an order, you agree to follow these Terms of Service.</p>
+                <h2>2. Use of Our Website</h2>
+                <p>You agree that information provided during checkout is accurate, you will use the site only for lawful purposes, and you will not misuse or attempt unauthorized access.</p>
+                <h2>3. Products and Product Information</h2>
+                <p>We make reasonable efforts to display accurate descriptions, colours and details, though slight display variations may occur.</p>
+                <h2>4. Product Compatibility</h2>
+                <p>Customers are responsible for selecting the correct phone model before placing an order.</p>
+                <h2>5. Pricing and Payments</h2>
+                <p>All prices are in Indian Rupees (INR). Payments may include UPI, cards, and net banking.</p>
+                <h2>6. Order Placement and Confirmation</h2>
+                <p>Order placement represents a purchase request subject to verification, availability, and confirmation.</p>
+                <h2>7. Shipping and Delivery</h2>
+                <p>Delivery across India is coordinated with courier partners. Estimated delivery timelines depend on location and conditions.</p>
+                <h2>8. Order Cancellation</h2>
+                <p>Cancellation requests can be made before dispatch by contacting customer support.</p>
+                <h2>9. Returns, Replacements and Refunds</h2>
+                <p>Damaged, defective, or incorrect items should be reported with order details and photos/videos for prompt resolution.</p>
+                <h2>10. Customer Responsibilities</h2>
+                <p>Ensuring correct model, shipping address, contact phone, and availability for parcel reception.</p>
+                <h2>11. Promotions, Discounts and Offers</h2>
+                <p>Promotions are subject to specific terms and validity periods.</p>
+                <h2>12. Intellectual Property</h2>
+                <p>All brand content, logos, graphics, and designs are owned by FrameCase or used with permission.</p>
+                <h2>13. Third-Party Services and Links</h2>
+                <p>External payment and logistics services operate under their own applicable terms.</p>
+                <h2>14. Website Availability and Security</h2>
+                <p>We work to keep the site secure and accessible, though temporary maintenance interruptions may occur.</p>
+                <h2>15. Limitation of Liability</h2>
+                <p>Liability is limited to the extent permitted by applicable Indian consumer laws.</p>
+                <h2>16. Indemnification</h2>
+                <p>Users agree not to misuse the platform or engage in unlawful activities.</p>
+                <h2>17. Privacy and Personal Information</h2>
+                <p>Personal information is processed strictly for order fulfillment and support in accordance with our Privacy Policy.</p>
+                <h2>18. Changes to These Terms</h2>
+                <p>Updates will be posted on this page with revision notices.</p>
+                <h2>19. Governing Law and Jurisdiction</h2>
+                <p>These terms are governed by and interpreted under the laws of India.</p>
+                <h2>20. Contact Information</h2>
+                <p><strong>Business Name:</strong> FrameCase<br /><strong>Location:</strong> Goa, India<br /><strong>Website:</strong> www.framecase.in<br /><strong>Email:</strong> nkeepson@gmail.com</p>
+                <div style="margin-top:24px;padding:20px;background:var(--cream);border-radius:12px;">
+                  <strong>Thank you for choosing FrameCase!</strong>
+                  <p>FrameCase – Style Your Phone, Your Way.</p>
+                </div>
+              </div>
+              <div class="contact-box">
+                <h3>Contact &amp; Support</h3>
+                <p>Our team is available every day to assist with orders and policy inquiries:</p>
+                <div class="contact-links">
+                  <div class="contact-item"><span>Goa, India</span></div>
+                  <a href="mailto:nkeepson@gmail.com" class="contact-item"><span>nkeepson@gmail.com</span></a>
+                  <a href="https://www.instagram.com/framecase.in?srtk=YWYzZDk4a3N2bWVl&amp;utm_source=qr" target="_blank" rel="noreferrer" class="contact-item"><span>@framecase.in on Instagram</span></a>
+                  <a href="https://framecase.in" class="contact-item"><span>www.framecase.in</span></a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `
+    },
+    {
+      route: 'privacy-policy',
+      title: 'Privacy Policy — Secure Orders & Data Protection | Framecase',
+      description: 'Learn how Framecase safeguards personal data, collects order and shipping details, handles cookies, and protects customer privacy rights.',
+      canonicalUrl: 'https://framecase.in/privacy-policy',
+      content: `
+        <div class="content-page-shell">
+          <div class="content-page-header">
+            <a href="/" class="back-to-catalog">← Back to home</a>
+            <p class="eyebrow">Trust &amp; Privacy · Last Updated: 4 November 2026</p>
+            <h1 class="content-page-title">Privacy Policy</h1>
+            <p class="content-page-subtitle">Your privacy is important to us. This Privacy Policy explains how FrameCase collects, uses, stores, processes and protects your personal information when you visit our website, browse our products or place an order.</p>
+          </div>
+          <div class="editorial-body">
+            <div class="about-grid">
+              <div class="about-card"><h3>Responsible Data Handling</h3><p>We are committed to handling your personal information responsibly and taking reasonable technical steps to protect it against unauthorized access.</p></div>
+              <div class="about-card"><h3>We Never Sell Your Data</h3><p>FrameCase does not sell customers’ personal information to third parties. Data is shared only with trusted delivery and payment partners to fulfill orders.</p></div>
+              <div class="about-card"><h3>Customer Privacy Rights</h3><p>You have the right to access, correct, or request deletion of your personal data by reaching out to our support team at any time.</p></div>
+            </div>
+            <div class="about-details-section">
+              <div class="about-details-block">
+                <h2>1. Introduction</h2>
+                <p>Welcome to FrameCase! This Privacy Policy explains how FrameCase collects, uses, stores, processes and protects your personal information.</p>
+                <h2>2. Information We Collect</h2>
+                <p><strong>A. Personal Information:</strong> Name, email address, mobile number, shipping address, PIN code, and order details.<br /><strong>B. Payment Information:</strong> Transaction IDs and processing status through secure third-party payment gateways.<br /><strong>C. Technical Information:</strong> IP address, browser type, device information, and pages visited.</p>
+                <h2>3. How We Use Your Information</h2>
+                <p>Used for order processing, shipping coordination, customer support, website performance, and fraud prevention.</p>
+                <h2>4. Cookies and Tracking Technologies</h2>
+                <p>Cookies help remember preferences, shopping cart contents, and measure browsing traffic.</p>
+                <h2>5. Sharing of Personal Information</h2>
+                <p>We do not sell data. We share only necessary details with payment gateways, courier logistics partners, and technical providers.</p>
+                <h2>6. Data Storage and Security</h2>
+                <p>Protected through HTTPS encryption, restricted access, and secure transaction workflows.</p>
+                <h2>7. Data Retention</h2>
+                <p>Retained only as long as necessary for order fulfillment, tax/accounting requirements, and support resolution.</p>
+                <h2>8. Customer Privacy Rights</h2>
+                <p>Rights to access, correct, erase, or withdraw consent regarding your personal records.</p>
+                <h2>9. Third-Party Websites and Services</h2>
+                <p>External links and third-party gateways operate under their respective privacy policies.</p>
+                <h2>10. Marketing Communications</h2>
+                <p>Promotional communications may be opted out of at any time while retaining critical transactional updates.</p>
+                <h2>11. Children’s Privacy</h2>
+                <p>We handle all information responsibly in compliance with applicable privacy regulations.</p>
+                <h2>12. International Data Processing</h2>
+                <p>Certain infrastructure services may process information across secure servers subject to protective safeguards.</p>
+                <h2>13. Changes to This Privacy Policy</h2>
+                <p>Updates are posted on this page with a revised Last Updated date.</p>
+                <h2>14. Contact Information</h2>
+                <p><strong>Business Name:</strong> FrameCase<br /><strong>Location:</strong> Goa, India<br /><strong>Website:</strong> www.framecase.in<br /><strong>Email:</strong> nkeepson@gmail.com</p>
+                <div style="margin-top:24px;padding:20px;background:var(--cream);border-radius:12px;">
+                  <strong>Your Privacy Matters to Us</strong>
+                  <p>FrameCase – Style Your Phone, Your Way.</p>
+                </div>
+              </div>
+              <div class="contact-box">
+                <h3>Privacy Inquiries</h3>
+                <p>Have questions about how your data is protected? Contact us:</p>
+                <div class="contact-links">
+                  <div class="contact-item"><span>Goa, India</span></div>
+                  <a href="mailto:nkeepson@gmail.com" class="contact-item"><span>nkeepson@gmail.com</span></a>
+                  <a href="https://www.instagram.com/framecase.in?srtk=YWYzZDk4a3N2bWVl&amp;utm_source=qr" target="_blank" rel="noreferrer" class="contact-item"><span>@framecase.in on Instagram</span></a>
+                  <a href="https://framecase.in" class="contact-item"><span>www.framecase.in</span></a>
+                </div>
+              </div>
             </div>
           </div>
         </div>
