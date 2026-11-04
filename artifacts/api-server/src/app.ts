@@ -181,14 +181,14 @@ if (fs.existsSync(clientDistPath)) {
         pageDesc = "Discover Framecase: unique & attractive design phone cases featuring optical glass finish, flexible shockproof TPU borders, and accessible ₹299 pricing.";
       } else if (cleanPath === "faq") {
         pageTitle = "Frequently Asked Questions (FAQs) — Unique Design Phone Covers | Framecase";
-        pageDesc = "Everything you need to know about Framecase phone cases, supported devices (iPhone, Samsung, OnePlus, Vivo, Oppo, Realme), shipping across India, and durability.";
+        pageDesc = "Everything you need to know about Framecase phone cases, supported devices (iPhone, Samsung, OnePlus, Vivo, Oppo, Realme), shipping in India & durability.";
       } else if (cleanPath === "blog") {
         pageTitle = "Framecase Journal — Unique & Attractive Phone Case Designs";
         pageDesc = "Read in-depth articles and guides about phone case aesthetics, everyday drop protection, and styling your smartphone carry.";
       } else if (VALID_CATEGORY_SLUGS.has(cleanPath)) {
         const catName = cleanPath.replace(/-/g, " ");
         pageTitle = `${catName.charAt(0).toUpperCase() + catName.slice(1)} Phone Cases — Unique & Attractive Covers (₹299) | Framecase`;
-        pageDesc = `Shop ${catName} phone cases with unique, attractive designs for iPhone, Samsung, OnePlus and more at ₹299 with free shipping across India.`;
+        pageDesc = `Shop ${catName} phone cases with unique, attractive designs for iPhone, Samsung, OnePlus and more at ₹299 with free shipping across India.`.slice(0, 160);
       }
 
       if (pageTitle && pageDesc) {

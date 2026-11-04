@@ -547,22 +547,42 @@ function App() {
 
   // Dynamic SEO Title and Meta Description + Favicon maintenance across SPA views
   useEffect(() => {
+    let currentDesc = 'Shop unique design phone cases in India! Attractive, stylish covers for top brands at ₹299. Explore now!';
     if (activeProduct) {
       document.title = `${activeProduct.title} — Unique & Attractive Design Case (₹299) | Framecase`;
+      currentDesc = `${activeProduct.title} phone case for iPhone, Samsung, OnePlus & more. Unique design, shockproof glass finish, all models available at ₹299.`.slice(0, 160);
     } else if (currentView === 'category') {
       const meta = getCategoryMeta(categoryViewSlug, currentLabel);
       document.title = meta.seoTitle;
+      currentDesc = meta.metaDescription || meta.description.slice(0, 160);
     } else if (currentView === 'about') {
       document.title = 'About Us — Unique & Attractive Design Phone Cases | Framecase';
+      currentDesc = 'Discover Framecase: unique & attractive design phone cases featuring optical glass finish, flexible shockproof TPU borders, and accessible ₹299 pricing.';
     } else if (currentView === 'faq') {
       document.title = 'Frequently Asked Questions (FAQs) — Unique Design Phone Covers | Framecase';
+      currentDesc = 'Everything you need to know about Framecase phone cases, supported devices (iPhone, Samsung, OnePlus, Vivo, Oppo, Realme), shipping in India & durability.';
     } else if (currentView === 'blog') {
       document.title = 'Framecase Journal — Unique & Attractive Phone Case Designs';
+      currentDesc = 'Read in-depth articles and guides about phone case aesthetics, everyday drop protection, and styling your smartphone carry.';
     } else if (selectedCollection) {
       const meta = getCategoryMeta(selectedCollection, currentLabel);
       document.title = meta.seoTitle;
+      currentDesc = meta.metaDescription || meta.description.slice(0, 160);
     } else {
       document.title = 'Framecase - Stylish Unique Design Phone Cases for All';
+    }
+
+    let metaDescEl = document.querySelector<HTMLMetaElement>("meta[name='description']");
+    if (metaDescEl) {
+      metaDescEl.content = currentDesc;
+    }
+    let ogDescEl = document.querySelector<HTMLMetaElement>("meta[property='og:description']");
+    if (ogDescEl) {
+      ogDescEl.content = currentDesc;
+    }
+    let twitterDescEl = document.querySelector<HTMLMetaElement>("meta[name='twitter:description']");
+    if (twitterDescEl) {
+      twitterDescEl.content = currentDesc;
     }
 
     // Maintain consistent canonical tag and Open Graph URL across client-side navigation
