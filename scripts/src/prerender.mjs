@@ -13,7 +13,11 @@ if (!fs.existsSync(templateHtmlPath)) {
   process.exit(1);
 }
 
-const templateHtml = fs.readFileSync(templateHtmlPath, 'utf8');
+// Read and preserve pristine base template with empty <div id="root"></div>
+let rawTemplate = fs.readFileSync(templateHtmlPath, 'utf8');
+// If rawTemplate already contains pre-rendered contents inside root, reset it to clean shell
+rawTemplate = rawTemplate.replace(/<div id="root">[\s\S]*?<\/div>/i, '<div id="root"></div>');
+const baseTemplateHtml = rawTemplate;
 
 function escapeHtml(str) {
   if (!str) return '';
@@ -25,7 +29,6 @@ function escapeHtml(str) {
     .replace(/'/g, '&#039;');
 }
 
-// Maps internal collection slug to actual PhoneVilla upstream URL
 const UPSTREAM_COLLECTION_MAP = {
   'new-designs': 'new-arrivalss',
   'new-arrivalss': 'new-arrivalss',
@@ -236,7 +239,7 @@ function renderFooter() {
   `;
 }
 
-function injectMetadata(html, { title, description, canonicalUrl, ogType = 'website', ogImage, jsonLd, bodyContent }) {
+function injectMetadata(html, { title, description, canonicalUrl, ogType = 'website', ogImage, jsonLd, bodyContent, hydrationScript }) {
   let res = html;
   if (title) {
     res = res.replace(/<title>[\s\S]*?<\/title>/i, `<title>${escapeHtml(title)}</title>`);
@@ -268,8 +271,12 @@ function injectMetadata(html, { title, description, canonicalUrl, ogType = 'webs
     res = res.replace('</head>', `  <script type="application/ld+json">${jsonStr}</script>\n</head>`);
   }
 
+  if (hydrationScript) {
+    res = res.replace('</head>', `  ${hydrationScript}\n</head>`);
+  }
+
   if (bodyContent) {
-    res = res.replace('<div id="root"></div>', `<div id="root"><div class="site-shell">${renderHeaderNav()}<main>${bodyContent}</main>${renderFooter()}</div></div>`);
+    res = res.replace(/<div id="root">[\s\S]*?<\/div>/i, `<div id="root"><div class="site-shell">${renderHeaderNav()}<main>${bodyContent}</main>${renderFooter()}</div></div>`);
   }
 
   return res;
@@ -396,7 +403,7 @@ async function run() {
   for (const page of staticPages) {
     const dir = path.join(distPublicPath, page.route);
     fs.mkdirSync(dir, { recursive: true });
-    const rendered = injectMetadata(templateHtml, {
+    const rendered = injectMetadata(baseTemplateHtml, {
       title: page.title,
       description: page.description,
       canonicalUrl: page.canonicalUrl,
@@ -496,13 +503,46 @@ async function run() {
       </div>
     `;
 
+    // Category Hydration Payload
+    const normalizedCategoryProducts = rawProds.slice(0, 48).map((p) => {
+      const srcImg = p.images?.[0]?.src || null;
+      return {
+        id: p.handle,
+        title: p.title,
+        description: 'A polished glass case with a glossy finish and protective silicon sides.',
+        imageUrl: srcImg?.startsWith('//') ? `https:${srcImg}` : srcImg,
+        price: '₹299',
+        compareAtPrice: '₹449',
+        productUrl: `/products/${p.handle}`,
+        collectionSlug: slug,
+        collectionName: meta.name,
+        tags: Array.isArray(p.tags) ? p.tags : [],
+        isFeatured: true,
+      };
+    });
+
+    const categoryInitialPayload = {
+      collection: slug,
+      catalog: {
+        products: normalizedCategoryProducts,
+        collections: navCollections.map(c => ({ slug: c.slug, name: c.label, count: c.slug === slug ? rawProds.length : 0 })),
+        syncedAt: new Date().toISOString(),
+        sourceOnline: true,
+        page: 1,
+        hasNextPage: rawProds.length > 48,
+      }
+    };
+
+    const hydrationScript = `<script id="__FRAMECASE_DATA__">window.__FRAMECASE_INITIAL_DATA__ = ${JSON.stringify(categoryInitialPayload)};</script>`;
+
     const dir = path.join(distPublicPath, slug);
     fs.mkdirSync(dir, { recursive: true });
-    const rendered = injectMetadata(templateHtml, {
+    const rendered = injectMetadata(baseTemplateHtml, {
       title: meta.seoTitle,
       description: meta.description,
       canonicalUrl: `https://framecase.in/${slug}`,
       bodyContent: catContent,
+      hydrationScript,
       jsonLd: {
         '@context': 'https://schema.org',
         '@type': 'CollectionPage',
@@ -675,7 +715,7 @@ async function run() {
     </section>
   `;
 
-  const renderedHomepage = injectMetadata(templateHtml, {
+  const renderedHomepage = injectMetadata(baseTemplateHtml, {
     title: 'Framecase - Stylish Unique Design Phone Cases for All',
     description: 'Shop unique design phone cases in India! Attractive, stylish covers for top brands at ₹299. Explore now!',
     canonicalUrl: 'https://framecase.in/',
@@ -735,7 +775,7 @@ async function run() {
       </section>
     `;
 
-    const rendered = injectMetadata(templateHtml, {
+    const rendered = injectMetadata(baseTemplateHtml, {
       title: pTitle,
       description: cleanDesc,
       canonicalUrl: canonical,

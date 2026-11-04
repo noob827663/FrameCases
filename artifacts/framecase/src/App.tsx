@@ -1,5 +1,5 @@
 import { type ChangeEvent, type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
-import { useGetCatalog } from '@workspace/api-client-react';
+import { useGetCatalog, getGetCatalogQueryKey } from '@workspace/api-client-react';
 import type { CatalogProduct } from '@workspace/api-client-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ArrowUpRight, ChevronRight, Copy, Check, Heart, Instagram, Menu, Search, Share2, ShieldCheck, ShoppingBag, Sparkles, Truck, X } from 'lucide-react';
@@ -459,13 +459,28 @@ function App() {
   const [currentView, setCurrentView] = useState<'catalog' | 'about' | 'faq' | 'blog' | 'category'>(initialRoute.view);
   const [categoryViewSlug, setCategoryViewSlug] = useState<string | undefined>(initialRoute.slug);
   const scrollPositionRef = useRef<number>(0);
+  const initialDataForCollection = useMemo(() => {
+    if (typeof window !== 'undefined' && (window as any).__FRAMECASE_INITIAL_DATA__) {
+      const data = (window as any).__FRAMECASE_INITIAL_DATA__;
+      if (data && data.collection === selectedCollection && data.catalog) {
+        return data.catalog;
+      }
+    }
+    return undefined;
+  }, [selectedCollection]);
+
   const params = useMemo(() => ({
     collection: selectedCollection,
     search: search.trim() || undefined,
     limit: 48,
     page,
   }), [selectedCollection, search, page]);
-  const catalog = useGetCatalog(params);
+  const catalog = useGetCatalog(params, {
+    query: {
+      queryKey: getGetCatalogQueryKey(params),
+      initialData: initialDataForCollection,
+    },
+  });
   const newlyLaunchedCatalog = useGetCatalog({
     collection: 'new-arrivalss',
     limit: 20,
