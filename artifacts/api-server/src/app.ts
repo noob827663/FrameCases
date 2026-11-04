@@ -94,6 +94,41 @@ if (fs.existsSync(clientDistPath)) {
       .replace(/'/g, "&#039;");
   }
 
+  function getEscapedLen(str: string): number {
+    return str
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;").length;
+  }
+
+  function formatProductPageTitle(title?: string): string {
+    if (!title) return "Framecase";
+    const maxLen = 70;
+    const suffixOptions = [
+      " — Stylish Unique Case (₹299) | Framecase", // 41 chars
+      " — Unique Design Case (₹299) | Framecase",  // 40 chars
+      " — Unique Glass Case (₹299) | Framecase",   // 39 chars
+      " — Glass Case (₹299) | Framecase",          // 32 chars
+      " (₹299) | Framecase",                       // 20 chars
+      " | Framecase",                              // 12 chars
+    ];
+
+    for (const suf of suffixOptions) {
+      if (getEscapedLen(title + suf) <= maxLen) {
+        return title + suf;
+      }
+    }
+
+    const minSuffix = " (₹299) | Framecase";
+    let truncated = title;
+    while (truncated.length > 0 && getEscapedLen(`${truncated}…${minSuffix}`) > maxLen) {
+      truncated = truncated.slice(0, -1).trim();
+    }
+    return `${truncated}…${minSuffix}`;
+  }
+
   app.get("/{*splat}", async (req, res, next) => {
     if (req.path.startsWith("/api")) {
       return next();
@@ -136,7 +171,7 @@ if (fs.existsSync(clientDistPath)) {
 
           if (pRes.ok) {
             const data: any = await pRes.json();
-            const rawTitle = data.title ? `${data.title} — Unique & Attractive Design Case (₹299) | Framecase` : "Framecase";
+            const rawTitle = formatProductPageTitle(data.title);
             const rawDesc = data.description ? data.description.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 160) : "Shop unique & attractive design phone cases at ₹299.";
             let img = data.images?.[0] || "";
             if (img.startsWith("//")) img = `https:${img}`;
@@ -187,7 +222,26 @@ if (fs.existsSync(clientDistPath)) {
         pageDesc = "Read in-depth articles and guides about phone case aesthetics, everyday drop protection, and styling your smartphone carry.";
       } else if (VALID_CATEGORY_SLUGS.has(cleanPath)) {
         const catName = cleanPath.replace(/-/g, " ");
-        pageTitle = `${catName.charAt(0).toUpperCase() + catName.slice(1)} Phone Cases — Unique & Attractive Covers (₹299) | Framecase`;
+        const formattedCat = catName.charAt(0).toUpperCase() + catName.slice(1);
+        if (cleanPath === "cars-bikes-collection") {
+          pageTitle = "Cars & Bikes Phone Cases — Unique & Attractive Design Covers (₹299) | Framecase";
+        } else {
+          const suffixOptions = [
+            " Phone Cases — Stylish Unique Covers (₹299) | Framecase",
+            " Cases — Stylish Unique Covers (₹299) | Framecase",
+            " Phone Cases — Unique Covers (₹299) | Framecase",
+            " Cases — Unique Covers (₹299) | Framecase",
+            " — Phone Cases (₹299) | Framecase",
+            " | Framecase",
+          ];
+          pageTitle = `${formattedCat} Phone Cases — Unique Covers (₹299) | Framecase`;
+          for (const suf of suffixOptions) {
+            if ((formattedCat + suf).length <= 70) {
+              pageTitle = formattedCat + suf;
+              break;
+            }
+          }
+        }
         pageDesc = `Shop ${catName} phone cases with unique, attractive designs for iPhone, Samsung, OnePlus and more at ₹299 with free shipping across India.`.slice(0, 160);
       }
 
