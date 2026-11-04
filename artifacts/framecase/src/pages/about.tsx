@@ -1,4 +1,4 @@
-import { Sparkles, Shield, Heart, Mail, Instagram, ArrowLeft, Palette, CheckCircle2 } from 'lucide-react';
+import { Sparkles, Shield, Heart, Mail, Instagram, ArrowLeft, Palette, CheckCircle2, Compass, Layers, Eye, Rocket, MapPin, Globe } from 'lucide-react';
 
 interface AboutPageProps {
   onBack: () => void;
@@ -53,11 +53,67 @@ export function AboutPage({ onBack }: AboutPageProps) {
           <p>
             By fusing luxury glass aesthetics with reliable everyday impact defense, we deliver phone cases that feel incredible in hand and turn heads wherever you go. All cases are offered at an accessible price of ₹299 with support for over 100+ phone models across iPhone, Samsung, OnePlus, Vivo, Oppo, Realme, and Pixel.
           </p>
-          <div className="about-highlights-list">
+          <div className="about-highlights-list" style={{ marginBottom: '32px' }}>
             <div><CheckCircle2 size={16} /> <span>Ultra-vibrant, non-fading sub-surface graphics</span></div>
             <div><CheckCircle2 size={16} /> <span>Cool-to-the-touch premium glass tactile experience</span></div>
             <div><CheckCircle2 size={16} /> <span>Reinforced impact corners with responsive tactile buttons</span></div>
             <div><CheckCircle2 size={16} /> <span>Precision camera cutouts with 1.2mm raised protective lips</span></div>
+          </div>
+
+          <h2>1. Why Choose FrameCase?</h2>
+          <p>
+            We believe shopping for phone accessories should be simple, enjoyable and affordable. At FrameCase, we focus on bringing together designs that match different styles and preferences without making you spend too much.
+          </p>
+          <p>
+            What makes us different is our focus on offering carefully selected designs, affordable pricing and a convenient shopping experience.
+          </p>
+          <p>
+            Whether you are looking for something minimal, aesthetic, trendy or eye-catching, our collection is designed to give you more ways to express your personal style.
+          </p>
+          <p>
+            We want every customer to enjoy discovering new designs and finding something they genuinely love.
+          </p>
+
+          <h2>2. Our Approach to Quality</h2>
+          <p>
+            A good phone case should look great and serve its everyday purpose. That’s why we pay attention to product appearance, design details and compatibility when selecting products for our collection.
+          </p>
+          <p>
+            We aim to offer products that provide a balance between style, practicality and affordability.
+          </p>
+          <p>
+            We continuously look for new designs and improvements to make our collection more interesting and relevant to our customers.
+          </p>
+
+          <h2>3. Designed Around Your Style</h2>
+          <p>
+            Everyone has a different taste, and we believe your phone accessories should reflect that.
+          </p>
+          <p>
+            Some people prefer simple and minimal designs, while others love colourful patterns, creative graphics and bold styles.
+          </p>
+          <p>
+            At FrameCase, we aim to bring together different designs so you can choose something that matches your personality.
+          </p>
+          <p>
+            Because your phone is part of your everyday life, its style should be yours.
+          </p>
+
+          <h2>4. Our Vision for the Future</h2>
+          <p>
+            Our vision is to build FrameCase into a trusted and recognised mobile accessories brand, offering customers a wide variety of stylish products at affordable prices.
+          </p>
+          <p>
+            We want to continuously expand our collection, introduce new designs, improve our services and reach customers across India.
+          </p>
+          <p>
+            Every order, every suggestion and every bit of customer support helps us grow. We are excited about the journey ahead and look forward to bringing you more reasons to love your phone.
+          </p>
+
+          <div style={{ marginTop: '28px', padding: '20px', background: 'var(--cream)', borderRadius: '12px' }}>
+            <p style={{ margin: 0, fontSize: '15px', fontWeight: 800, color: 'var(--ink)' }}>
+              FrameCase – Style Your Phone, Your Way.
+            </p>
           </div>
         </div>
 
@@ -65,6 +121,10 @@ export function AboutPage({ onBack }: AboutPageProps) {
           <h3>Contact & Support</h3>
           <p>Have questions about your phone model, order status, or design suggestions? We are here to help!</p>
           <div className="contact-links">
+            <div className="contact-item">
+              <MapPin size={18} />
+              <span>Goa, India</span>
+            </div>
             <a href="mailto:nkeepson@gmail.com" className="contact-item">
               <Mail size={18} />
               <span>nkeepson@gmail.com</span>
@@ -77,6 +137,10 @@ export function AboutPage({ onBack }: AboutPageProps) {
             >
               <Instagram size={18} />
               <span>@framecase.in on Instagram</span>
+            </a>
+            <a href="https://framecase.in" className="contact-item">
+              <Globe size={18} />
+              <span>www.framecase.in</span>
             </a>
           </div>
         </div>
