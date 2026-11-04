@@ -59,7 +59,7 @@ const CATEGORIES_DATA = {
   'new-designs': {
     slug: 'new-designs',
     name: 'New Designs',
-    seoTitle: 'New Design Phone Cases — Unique & Attractive Covers (₹299) | Framecase',
+    seoTitle: 'New Design Phone Cases — Stylish Covers | Framecase',
     tagline: 'Fresh drops straight from the design studio.',
     description: 'Discover our newest phone case additions: limited-edition art drops, contemporary viral aesthetics, seasonal color palettes, street-style typography, and modern graphic statements freshly crafted for trendsetters.',
     metaDescription: 'Discover new design phone cases at ₹299. Fresh limited art drops, contemporary viral aesthetics, and street typography with shockproof TPU borders.',
@@ -69,7 +69,7 @@ const CATEGORIES_DATA = {
   'new-arrivalss': {
     slug: 'new-arrivalss',
     name: 'Newly Launched',
-    seoTitle: 'Newly Launched Phone Cases — Unique & Attractive Design Covers (₹299) | Framecase',
+    seoTitle: 'Newly Launched Phone Cases — Unique Covers | Framecase',
     tagline: 'The latest drops crafted to transform your everyday carry.',
     description: 'Explore the freshest catalog additions featuring bold graphics, pop-culture statements, vibrant illustrations, retro comic hero art, and clean typography designed to elevate your device instantly.',
     metaDescription: 'Explore newly launched phone cases at ₹299. Bold graphics, pop-culture art & vibrant typography with glossy scratch-resistant finish and drop safety.',
@@ -79,7 +79,7 @@ const CATEGORIES_DATA = {
   'best-sellers': {
     slug: 'best-sellers',
     name: 'Top Selling Cases',
-    seoTitle: 'Best Selling Phone Cases — Unique & Attractive Design Covers (₹299) | Framecase',
+    seoTitle: 'Best Selling Phone Cases — Top Design Covers | Framecase',
     tagline: 'The crowd favorites and community-rated top picks.',
     description: 'These are the cases our community loves the most. From best-selling retro collages and Japanese typography to iconic celestial charts, supercar art, and sneaker illustrations, these proven crowd-pleasers are guaranteed to turn heads.',
     metaDescription: 'Shop best selling phone cases loved by 10,000+ users in India. Top-rated designs at ₹299 with scratch-resistant back & shockproof silicon bumper.',
@@ -89,7 +89,7 @@ const CATEGORIES_DATA = {
   'aesthetic-collection': {
     slug: 'aesthetic-collection',
     name: 'Aesthetic',
-    seoTitle: 'Aesthetic Phone Cases — Unique & Attractive Covers (₹299) | Framecase',
+    seoTitle: 'Aesthetic Phone Cases — Stylish Design Covers | Framecase',
     tagline: 'Soft palettes, dreamscapes, and mood-driven visuals.',
     description: 'Transform your phone into a visual mood board. Our Aesthetic collection features pastel gradients, celestial line art, dreamy cloud horizons, Japanese floral accents, and subtle typography created for mindful design enthusiasts.',
     metaDescription: 'Shop aesthetic phone cases at ₹299. Dreamy pastel gradients, kanji typography & line art covers with protective gloss & shockproof edges.',
@@ -109,7 +109,7 @@ const CATEGORIES_DATA = {
   'sports-collection': {
     slug: 'sports-collection',
     name: 'Sports & Football',
-    seoTitle: 'Sports Phone Cases — Unique & Attractive Design Covers (₹299) | Framecase',
+    seoTitle: 'Sports Phone Cases — Unique Design Covers | Framecase',
     tagline: 'Football legends, iconic kicks, jersey numbers, and championship energy.',
     description: 'Our Sports Phone Cases collection is packed with designs made for true sports fans. Discover phone cases featuring legendary football moments, iconic Cristiano Ronaldo (CR7) celebration artwork, Messi tributes, retro basketball sneakers, football boots, stadium silhouettes, and dynamic athletic typography printed crisp and vibrant.',
     metaDescription: 'Shop sports phone cases at ₹299. Football legends, CR7, sneakers & athletic energy phone covers with scratch-resistant gloss & TPU drop defense.',
@@ -119,7 +119,7 @@ const CATEGORIES_DATA = {
   'art-collection': {
     slug: 'art-collection',
     name: 'Arts & Scenery',
-    seoTitle: 'Art & Scenery Phone Cases — Unique & Attractive Design Covers (₹299) | Framecase',
+    seoTitle: 'Art & Scenery Phone Cases — Unique Covers | Framecase',
     tagline: 'Fine art masterpieces, misty mountain horizons, and nature landscapes.',
     description: 'Turn your smartphone into an art gallery. Designs range from impressionist oil paintings (starry skies, wave crests) to misty pine mountain ranges and tranquil seascapes.',
     metaDescription: 'Turn your phone into an art gallery at ₹299. Starry skies, misty mountain horizons & ocean waves with rich glossy color depth and TPU borders.',
@@ -129,7 +129,7 @@ const CATEGORIES_DATA = {
   'zodiac-sign': {
     slug: 'zodiac-sign',
     name: 'Astrology & Zodiac',
-    seoTitle: 'Zodiac & Astrology Phone Cases — Unique & Attractive Design Covers (₹299) | Framecase',
+    seoTitle: 'Zodiac Phone Cases — Astrological Covers | Framecase',
     tagline: 'Constellations, planetary alignments, and celestial birth charts.',
     description: 'Align your phone with the stars. Features all 12 astrological signs: Leo, Scorpio, Aries, Taurus, and more with golden constellation maps, tarot card aesthetics, and moon phases.',
     metaDescription: 'Shop Zodiac & astrology phone cases at ₹299. Golden constellation maps and tarot aesthetics with mirror gloss back & shockproof drop bumper.',
@@ -139,7 +139,7 @@ const CATEGORIES_DATA = {
   'mens-collection': {
     slug: 'mens-collection',
     name: "Men's Edit",
-    seoTitle: "Men's Phone Cases — Unique & Attractive Design Covers (₹299) | Framecase",
+    seoTitle: "Men's Phone Cases — Unique & Stylish Covers | Framecase",
     tagline: 'Bold, structured, and modern designs for everyday gentlemen.',
     description: 'A curated selection of masculine aesthetics: brushed dark metallics, supercar blueprints, carbon fiber weaves, bold monochrome typography, and stealth geometric patterns.',
     metaDescription: 'Curated mens phone cases at ₹299. Carbon fiber weaves, supercar blueprints & stealth geometric designs with tactile feel & rugged corner defense.',
@@ -149,7 +149,7 @@ const CATEGORIES_DATA = {
   'girls-collection': {
     slug: 'girls-collection',
     name: "Women's Edit",
-    seoTitle: "Women's Phone Cases — Unique & Attractive Design Covers (₹299) | Framecase",
+    seoTitle: "Women's Phone Cases — Unique & Chic Covers | Framecase",
     tagline: 'Chic, vibrant, and artistic designs curated for women.',
     description: 'Discover joyful botanical florals, delicate butterfly wings, empowering quote typography, cozy café moments, and chic pastel collages crafted to complement your outfit.',
     metaDescription: 'Chic artistic womens phone cases at ₹299. Botanical florals, butterflies & quotes with stain-resistant protective gloss & lightweight build.',
@@ -159,7 +159,7 @@ const CATEGORIES_DATA = {
   'cats-collection': {
     slug: 'cats-collection',
     name: 'Cats & Felines',
-    seoTitle: 'Cat Phone Cases — Unique & Attractive Design Covers (₹299) | Framecase',
+    seoTitle: 'Cat Phone Cases — Unique & Cute Design Covers | Framecase',
     tagline: 'Playful kittens, cozy illustrations, and feline humor.',
     description: 'The ultimate case lineup for cat lovers. Discover phone cases featuring sleepy ginger tabbies, curious black cats peeking out, sushi kittens, and playful cat paw doodles.',
     metaDescription: 'Shop adorable cat phone cases at ₹299. Sleepy ginger tabbies, sushi kittens & paw prints with crystal-clear print & shockproof corner wrap.',
@@ -169,7 +169,7 @@ const CATEGORIES_DATA = {
   'evil-eye-nazar': {
     slug: 'evil-eye-nazar',
     name: 'Evil Eye & Nazar',
-    seoTitle: 'Evil Eye Phone Cases — Unique & Attractive Design Covers (₹299) | Framecase',
+    seoTitle: 'Evil Eye Phone Cases — Unique Protective Covers | Framecase',
     tagline: 'Ancient protective amulets, royal blue talismans, and warding motifs.',
     description: 'Ward off negative energy with symbolic style. Features vibrant Mediterranean cobalt blue nazar amulets, golden sacred sun motifs, protective hamsa hands, and mystic spiritual patterns.',
     metaDescription: 'Ward off negativity with Evil Eye phone cases at ₹299. Cobalt blue nazar talismans & sun motifs with scratch-resistant gloss and camera bezel.',
@@ -764,7 +764,9 @@ async function run() {
     const prodDir = path.join(distPublicPath, 'products', handle);
     fs.mkdirSync(prodDir, { recursive: true });
 
-    const pTitle = `${product.title} — Unique & Attractive Design Case (₹299) | Framecase`;
+    const maxPNameLen = 70 - ' | Framecase'.length; // 56
+    const pTrimmed = product.title.length > maxPNameLen ? product.title.slice(0, maxPNameLen).trim() : product.title;
+    const pTitle = `${pTrimmed} | Framecase`;
     const cleanDesc = (product.body_html || 'A polished glass case with a glossy finish and protective silicon sides.')
       .replace(/<[^>]*>/g, ' ')
       .replace(/\s+/g, ' ')
