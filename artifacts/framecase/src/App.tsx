@@ -1113,7 +1113,13 @@ function App() {
         <section className="value-strip" aria-label="Framecase benefits">
           <div><ShieldCheck size={19} /><span>Made to protect</span></div>
           <div><Sparkles size={19} /><span>Designs for every mood</span></div>
-          <div><Truck size={19} /><span>Ships across India</span></div>
+          <div>
+            <Truck size={19} />
+            <div className="value-strip-text">
+              <span>Ships across India</span>
+              <small className="value-strip-sub">cases for all mobile models</small>
+            </div>
+          </div>
         </section>
 
         <section className="collection-section">
