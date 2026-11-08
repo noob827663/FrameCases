@@ -847,7 +847,10 @@ async function run() {
     <section class="value-strip" aria-label="Framecase benefits">
       <div><span>🛡️ Made to protect</span></div>
       <div><span>✨ Designs for every mood</span></div>
-      <div><span>🚚 Ships across India</span></div>
+      <div>
+        <span>🚚 Ships across India</span>
+        <small class="value-strip-sub">cases for all mobile models</small>
+      </div>
     </section>
 
     <section class="collection-section">
