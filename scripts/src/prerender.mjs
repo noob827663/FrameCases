@@ -624,6 +624,25 @@ async function run() {
   for (const page of staticPages) {
     const dir = path.join(distPublicPath, page.route);
     fs.mkdirSync(dir, { recursive: true });
+    const pageBreadcrumbs = {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Home',
+          item: 'https://framecase.in/'
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: page.title.split('—')[0].trim(),
+          item: page.canonicalUrl
+        }
+      ]
+    };
+
     const rendered = injectMetadata(baseTemplateHtml, {
       title: page.title,
       description: page.description,
@@ -631,11 +650,16 @@ async function run() {
       bodyContent: page.content,
       jsonLd: {
         '@context': 'https://schema.org',
-        '@type': 'WebPage',
-        name: page.title,
-        description: page.description,
-        url: page.canonicalUrl,
-        publisher: { '@type': 'Organization', name: 'Framecase', url: 'https://framecase.in/' }
+        '@graph': [
+          {
+            '@type': 'WebPage',
+            name: page.title,
+            description: page.description,
+            url: page.canonicalUrl,
+            publisher: { '@type': 'Organization', name: 'Framecase', url: 'https://framecase.in/' }
+          },
+          pageBreadcrumbs
+        ]
       }
     });
     fs.writeFileSync(path.join(dir, 'index.html'), rendered);
@@ -675,7 +699,7 @@ async function run() {
         <div class="product-card">
           <a href="/products/${encodeURIComponent(p.handle)}" class="product-card-link">
             <div class="product-media">
-              ${img ? `<img src="${escapeHtml(img)}" alt="${escapeHtml(p.title)}" loading="lazy" />` : '<div class="image-fallback">Framecase</div>'}
+              ${img ? `<img src="${escapeHtml(img)}" alt="${escapeHtml(p.title)} - Unique Phone Case" loading="lazy" />` : '<div class="image-fallback">Framecase</div>'}
             </div>
             <div class="product-info">
               <h3>${escapeHtml(p.title)}</h3>
@@ -759,6 +783,24 @@ async function run() {
     const categoryMetaDescription = (meta.metaDescription || meta.description).slice(0, 160);
     const dir = path.join(distPublicPath, slug);
     fs.mkdirSync(dir, { recursive: true });
+    const categoryBreadcrumbs = {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Home',
+          item: 'https://framecase.in/'
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: meta.name,
+          item: `https://framecase.in/${slug}`
+        }
+      ]
+    };
+
     const rendered = injectMetadata(baseTemplateHtml, {
       title: meta.seoTitle,
       description: categoryMetaDescription,
@@ -767,22 +809,27 @@ async function run() {
       hydrationScript,
       jsonLd: {
         '@context': 'https://schema.org',
-        '@type': 'CollectionPage',
-        name: meta.name,
-        description: categoryMetaDescription,
-        url: `https://framecase.in/${slug}`,
-        hasPart: rawProds.slice(0, 24).map(p => ({
-          '@type': 'Product',
-          name: p.title,
-          url: `https://framecase.in/products/${p.handle}`,
-          image: p.images?.[0]?.src,
-          offers: {
-            '@type': 'Offer',
-            price: '299',
-            priceCurrency: 'INR',
-            availability: 'https://schema.org/InStock'
-          }
-        }))
+        '@graph': [
+          {
+            '@type': 'CollectionPage',
+            name: meta.name,
+            description: categoryMetaDescription,
+            url: `https://framecase.in/${slug}`,
+            hasPart: rawProds.slice(0, 24).map(p => ({
+              '@type': 'Product',
+              name: p.title,
+              url: `https://framecase.in/products/${p.handle}`,
+              image: p.images?.[0]?.src,
+              offers: {
+                '@type': 'Offer',
+                price: '299',
+                priceCurrency: 'INR',
+                availability: 'https://schema.org/InStock'
+              }
+            }))
+          },
+          categoryBreadcrumbs
+        ]
       }
     });
     fs.writeFileSync(path.join(dir, 'index.html'), rendered);
@@ -799,7 +846,7 @@ async function run() {
       <div class="product-card">
         <a href="/products/${encodeURIComponent(p.handle)}" class="product-card-link">
           <div class="product-media">
-            ${img ? `<img src="${escapeHtml(img)}" alt="${escapeHtml(p.title)}" loading="lazy" />` : '<div class="image-fallback">Framecase</div>'}
+            ${img ? `<img src="${escapeHtml(img)}" alt="${escapeHtml(p.title)} - Unique Phone Case" loading="lazy" />` : '<div class="image-fallback">Framecase</div>'}
           </div>
           <div class="product-info">
             <h3>${escapeHtml(p.title)}</h3>
@@ -979,7 +1026,7 @@ async function run() {
         <a href="/${product.collectionSlug || ''}" class="back-to-catalog">← Back to designs</a>
         <div class="product-page-layout">
           <div class="product-page-media">
-            ${pImg ? `<img src="${escapeHtml(pImg)}" alt="${escapeHtml(product.title)}" />` : '<div class="image-fallback">Framecase</div>'}
+            ${pImg ? `<img src="${escapeHtml(pImg)}" alt="${escapeHtml(product.title)} - Unique Phone Case" />` : '<div class="image-fallback">Framecase</div>'}
           </div>
           <div class="product-page-details">
             <p class="product-collection">${escapeHtml(product.collectionName || 'Curated Collection')}</p>
@@ -1002,6 +1049,34 @@ async function run() {
       </section>
     `;
 
+    const productBreadcrumbs = {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Home',
+          item: 'https://framecase.in/'
+        },
+        ...(product.collectionSlug ? [{
+          '@type': 'ListItem',
+          position: 2,
+          name: product.collectionName || 'Collection',
+          item: `https://framecase.in/${product.collectionSlug}`
+        }, {
+          '@type': 'ListItem',
+          position: 3,
+          name: product.title,
+          item: canonical
+        }] : [{
+          '@type': 'ListItem',
+          position: 2,
+          name: product.title,
+          item: canonical
+        }])
+      ]
+    };
+
     const rendered = injectMetadata(baseTemplateHtml, {
       title: pTitle,
       description: cleanDesc,
@@ -1011,20 +1086,53 @@ async function run() {
       bodyContent: prodBodyHtml,
       jsonLd: {
         '@context': 'https://schema.org',
-        '@type': 'Product',
-        name: product.title,
-        description: cleanDesc,
-        image: pImg,
-        url: canonical,
-        brand: { '@type': 'Brand', name: 'Framecase' },
-        offers: {
-          '@type': 'Offer',
-          price: '299',
-          priceCurrency: 'INR',
-          priceValidUntil: '2027-12-31',
-          availability: 'https://schema.org/InStock',
-          url: canonical
-        }
+        '@graph': [
+          {
+            '@type': 'Product',
+            name: product.title,
+            description: cleanDesc,
+            image: pImg ? [pImg] : [],
+            sku: handle,
+            url: canonical,
+            itemCondition: 'https://schema.org/NewCondition',
+            brand: { '@type': 'Brand', name: 'Framecase' },
+            category: product.collectionName || 'Phone Cases',
+            offers: {
+              '@type': 'Offer',
+              price: '299',
+              priceCurrency: 'INR',
+              priceValidUntil: '2027-12-31',
+              availability: 'https://schema.org/InStock',
+              url: canonical,
+              seller: {
+                '@type': 'Organization',
+                name: 'Framecase',
+                url: 'https://framecase.in/'
+              },
+              shippingDetails: {
+                '@type': 'OfferShippingDetails',
+                shippingRate: {
+                  '@type': 'MonetaryAmount',
+                  value: '0',
+                  currency: 'INR'
+                },
+                shippingDestination: {
+                  '@type': 'DefinedRegion',
+                  addressCountry: 'IN'
+                }
+              },
+              hasMerchantReturnPolicy: {
+                '@type': 'MerchantReturnPolicy',
+                applicableCountry: 'IN',
+                returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+                merchantReturnDays: 2,
+                returnMethod: 'https://schema.org/ReturnByMail',
+                returnFees: 'https://schema.org/FreeReturn'
+              }
+            }
+          },
+          productBreadcrumbs
+        ]
       }
     });
 
