@@ -165,6 +165,20 @@ if (fs.existsSync(clientDistPath)) {
               html = html.replace("</head>", () => `  <meta property="og:image" content="${safeImg}" />\n    <meta property="og:image:secure_url" content="${safeImg}" />\n    <meta property="og:image:width" content="1200" />\n    <meta property="og:image:height" content="1200" />\n    <meta name="twitter:image" content="${safeImg}" />\n  </head>`);
             }
 
+            const pCanonical = `https://framecase.in/products/${encodeURIComponent(handle)}`;
+            html = html.replace(/<link rel="canonical" href="[^"]*"/i, () => `<link rel="canonical" href="${escapeHtml(pCanonical)}"`);
+            html = html.replace(/<meta property="og:url" content="[^"]*"/i, () => `<meta property="og:url" content="${escapeHtml(pCanonical)}"`);
+
+            const prodBreadcrumbs = {
+              "@context": "https://schema.org",
+              "@type": "BreadcrumbList",
+              "itemListElement": [
+                { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://framecase.in/" },
+                { "@type": "ListItem", "position": 2, "name": safeTitle.replace(" | Framecase", ""), "item": pCanonical }
+              ]
+            };
+            html = html.replace("</head>", () => `  <script type="application/ld+json">${JSON.stringify(prodBreadcrumbs)}</script>\n  </head>`);
+
             res.send(html);
             return;
           }
@@ -216,6 +230,21 @@ if (fs.existsSync(clientDistPath)) {
         html = html.replace(/<meta name="description" content="[^"]*"/i, () => `<meta name="description" content="${safeDesc}"`);
         html = html.replace(/<meta property="og:description" content="[^"]*"/i, () => `<meta property="og:description" content="${safeDesc}"`);
         html = html.replace(/<meta name="twitter:description" content="[^"]*"/i, () => `<meta name="twitter:description" content="${safeDesc}"`);
+
+        const catCanonical = `https://framecase.in/${cleanPath}`;
+        html = html.replace(/<link rel="canonical" href="[^"]*"/i, () => `<link rel="canonical" href="${escapeHtml(catCanonical)}"`);
+        html = html.replace(/<meta property="og:url" content="[^"]*"/i, () => `<meta property="og:url" content="${escapeHtml(catCanonical)}"`);
+
+        const catBreadcrumbs = {
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://framecase.in/" },
+            { "@type": "ListItem", "position": 2, "name": safeTitle.split("—")[0].replace(" | Framecase", "").trim(), "item": catCanonical }
+          ]
+        };
+        html = html.replace("</head>", () => `  <script type="application/ld+json">${JSON.stringify(catBreadcrumbs)}</script>\n  </head>`);
+
         res.send(html);
         return;
       }
