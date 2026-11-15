@@ -2,7 +2,7 @@ import { type ChangeEvent, type ReactNode, useEffect, useMemo, useRef, useState 
 import { useGetCatalog, getGetCatalogQueryKey } from '@workspace/api-client-react';
 import type { CatalogProduct } from '@workspace/api-client-react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { ArrowUpRight, ChevronRight, Copy, Check, Heart, Instagram, Menu, Search, Share2, ShieldCheck, ShoppingBag, Sparkles, Truck, X } from 'lucide-react';
+import { ArrowUpRight, ChevronDown, ChevronRight, Copy, Check, Heart, Instagram, Menu, Search, Share2, ShieldCheck, ShoppingBag, Sparkles, Truck, X } from 'lucide-react';
 import { Toaster } from '@/components/ui/toaster';
 import { PredictiveSearchBox, type SuggestProduct, type SuggestCollection } from '@/components/predictive-search';
 import { ErrorBoundary } from '@/components/error-boundary';
@@ -428,6 +428,7 @@ function App() {
   const [search, setSearch] = useState('');
   const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [shopByDesignOpen, setShopByDesignOpen] = useState(false);
   const [showAllCollections, setShowAllCollections] = useState(false);
   const [activeProduct, setActiveProduct] = useState<CatalogProduct | null>(null);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -908,12 +909,12 @@ function App() {
         <div className="header-actions">
           <button type="button" className="icon-button" aria-label="Search" onClick={openSearch}><Search size={20} /></button>
           <button type="button" className="bag-button" aria-label="Shopping bag" onClick={() => setCartOpen(true)}><ShoppingBag size={20} /><span>{cartCount}</span></button>
-          <button type="button" className="menu-button icon-button" aria-label="Open menu" onClick={() => setMobileMenuOpen((value) => !value)}>{mobileMenuOpen ? <X size={21} /> : <Menu size={21} />}</button>
+          <button type="button" className="menu-button icon-button" aria-label="Open menu" onClick={() => { setMobileMenuOpen((value) => !value); setShopByDesignOpen(false); }}>{mobileMenuOpen ? <X size={21} /> : <Menu size={21} />}</button>
         </div>
       </header>
       {mobileMenuOpen && (
         <nav className="mobile-menu" role="menu" aria-label="Mobile navigation">
-          {navCollections.map((item) => (
+          {navCollections.filter((item) => item.slug === 'new-designs' || item.slug === 'best-sellers').map((item) => (
             <a
               key={item.slug}
               href={`/${item.slug}`}
@@ -927,6 +928,34 @@ function App() {
               <ChevronRight size={17} />
             </a>
           ))}
+          <button
+            type="button"
+            role="menuitem"
+            aria-expanded={shopByDesignOpen}
+            aria-controls="shop-by-design-list"
+            onClick={() => setShopByDesignOpen((value) => !value)}
+          >
+            <span>Shop by design</span>
+            <ChevronDown size={17} className={shopByDesignOpen ? 'rotate-180' : ''} />
+          </button>
+          {shopByDesignOpen && (
+            <div id="shop-by-design-list" className="mobile-submenu">
+              {navCollections.filter((item) => item.slug !== 'new-designs' && item.slug !== 'best-sellers').map((item) => (
+                <a
+                  key={item.slug}
+                  href={`/${item.slug}`}
+                  role="menuitem"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    openCategoryPage(item.slug);
+                  }}
+                >
+                  <span>{item.label}</span>
+                  <ChevronRight size={17} />
+                </a>
+              ))}
+            </div>
+          )}
           <a
             href="/blog"
             role="menuitem"
